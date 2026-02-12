@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>Our Love Story 💕</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body {
   margin: 0;
@@ -22,27 +23,30 @@ h1 {
 }
 
 .countdown {
-  font-size: 1.3em;
+  font-size: 1.2em;
   margin: 10px 0;
 }
 
-.gallery {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
+.slideshow {
+  position: relative;
+  width: 250px;
+  height: 350px;
   margin: 30px 0;
-  flex-wrap: wrap;
 }
 
-.gallery img {
-  width: 220px;
+.slideshow img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 20px;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
   box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-  transition: transform 0.3s ease;
 }
 
-.gallery img:hover {
-  transform: scale(1.08);
+.slideshow img.active {
+  opacity: 1;
 }
 
 button {
@@ -71,10 +75,10 @@ button {
 
 #message {
   margin-top: 20px;
-  font-size: 1.4em;
+  font-size: 1.3em;
 }
 
-/* Big I Love You Overlay */
+/* I LOVE YOU OVERLAY */
 #loveOverlay {
   position: fixed;
   top: 0;
@@ -85,7 +89,7 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 6vw;
+  font-size: 7vw;
   font-weight: bold;
   z-index: 1000;
   opacity: 0;
@@ -111,8 +115,8 @@ button {
   <div id="anniversaryCountdown"></div>
 </div>
 
-<div class="gallery">
-  <img src="456C3DFA-6694-47CD-9340-C41EDA179452.jpeg">
+<div class="slideshow">
+  <img src="456C3DFA-6694-47CD-9340-C41EDA179452.jpeg" class="active">
   <img src="9779781B-6837-46AD-8A78-09F7AD151B48.jpeg">
   <img src="EE0C9E1C-9B92-4CEC-91BF-210B3D5DB6D5.jpeg">
 </div>
@@ -122,16 +126,19 @@ button {
 
 <div id="message"></div>
 
+<audio id="loveMusic" loop>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
+// COUNTDOWN
 function getCountdown(targetDate) {
   const now = new Date().getTime();
   const distance = targetDate - now;
 
-  if (distance < 0) {
-    return "The day is here ❤️";
-  }
+  if (distance < 0) return "The day is here ❤️";
 
   const days = Math.floor(distance / (1000 * 60 * 60 * 24));
   const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
@@ -155,30 +162,56 @@ function updateCountdowns() {
 
 setInterval(updateCountdowns, 1000);
 
-function yesClicked() {
+// SLIDESHOW
+let slides = document.querySelectorAll(".slideshow img");
+let currentSlide = 0;
 
-  // Confetti burst
-  confetti({
-    particleCount: 200,
-    spread: 100,
-    origin: { y: 0.6 }
-  });
-
-  // Show overlay
-  const overlay = document.getElementById("loveOverlay");
-  overlay.style.opacity = 1;
-
-  // Hide overlay after 3 seconds
-  setTimeout(() => {
-    overlay.style.opacity = 0;
+function startSlideshow() {
+  setInterval(() => {
+    slides[currentSlide].classList.remove("active");
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add("active");
   }, 3000);
 }
 
+// YES BUTTON
+function yesClicked() {
+
+  // Start music
+  document.getElementById("loveMusic").play();
+
+  // Confetti for 5 seconds
+  const duration = 5000;
+  const end = Date.now() + duration;
+
+  (function frame() {
+    confetti({
+      particleCount: 5,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  })();
+
+  // Show I LOVE YOU overlay
+  const overlay = document.getElementById("loveOverlay");
+  overlay.style.opacity = 1;
+
+  setTimeout(() => {
+    overlay.style.opacity = 0;
+    startSlideshow();
+  }, 3000);
+}
+
+// NO BUTTON
 function noClicked() {
   document.getElementById("message").innerHTML =
-    "You thought you had a choice? 😤❤️";
+    "Nice try 😤 You’re stuck with me ❤️";
 }
 </script>
 
 </body>
 </html>
+
