@@ -41,15 +41,19 @@
       justify-content: center;
       padding: 10px 12px 0;
     }
+canvas {
+  width: min(96vw, 900px);
+  aspect-ratio: 3 / 1;        /* keeps the correct shape */
+  height: auto;               /* works with aspect-ratio */
+  background: rgba(255,255,255,0.95);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  display: block;
+  max-width: 900px;
+  border: 2px solid rgba(0,0,0,0.08);
+}
 
-    canvas {
-      width: min(96vw, 900px);
-      height: auto;
-      background: rgba(255,255,255,0.95);
-      border-radius: 16px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
-      display: block;
-      max-width: 900px;
+    
     }
 
     .controls {
