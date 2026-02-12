@@ -1,217 +1,523 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Our Love Story 💕</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to right, #ff758c, #ff7eb3);
-  color: white;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heart Run 💘</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #ff758c, #ff7eb3);
+      color: white;
+      text-align: center;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
 
-h1 {
-  margin-top: 40px;
-  font-size: 2.5em;
-}
+    h1 { margin: 18px 12px 8px; }
+    .hud {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 8px 12px 10px;
+      font-size: 16px;
+      align-items: center;
+    }
 
-.countdown {
-  font-size: 1.2em;
-  margin: 10px 0;
-}
+    .pill {
+      background: rgba(0,0,0,0.25);
+      padding: 8px 12px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
 
-.slideshow {
-  position: relative;
-  width: 250px;
-  height: 350px;
-  margin: 30px 0;
-}
+    .wrap {
+      display: flex;
+      justify-content: center;
+      padding: 10px 12px 0;
+    }
 
-.slideshow img {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 20px;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-}
+    canvas {
+      width: min(96vw, 900px);
+      height: auto;
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+      display: block;
+      max-width: 900px;
+    }
 
-.slideshow img.active {
-  opacity: 1;
-}
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 12px 12px 20px;
+      flex-wrap: wrap;
+    }
 
-button {
-  padding: 15px 30px;
-  font-size: 20px;
-  margin: 15px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+    }
 
-#yesBtn {
-  background-color: #ff4d6d;
-  color: white;
-}
+    .btn-jump { background: #ff4d6d; color: white; }
+    .btn-forward { background: white; color: #111; }
+    .btn-mute { background: rgba(0,0,0,0.35); color: white; }
 
-#yesBtn:hover {
-  transform: scale(1.1);
-}
+    /* Game Over overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      z-index: 10;
+      padding: 16px;
+    }
 
-#noBtn {
-  background-color: white;
-  color: black;
-}
+    .card {
+      width: min(520px, 92vw);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 18px;
+      padding: 18px 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
 
-#message {
-  margin-top: 20px;
-  font-size: 1.3em;
-}
+    .card h2 { margin: 6px 0 10px; }
+    .card p { margin: 8px 0; }
 
-/* I LOVE YOU OVERLAY */
-#loveOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #ff4d6d;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 7vw;
-  font-weight: bold;
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1s ease;
-}
-</style>
+    .btn-replay {
+      background: #ff4d6d;
+      color: white;
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 18px;
+      border-radius: 14px;
+      margin-top: 10px;
+    }
+
+    .hint {
+      opacity: 0.9;
+      font-size: 13px;
+      margin: 6px 12px 16px;
+    }
+  </style>
 </head>
-
 <body>
 
-<div id="loveOverlay">I LOVE YOU ❤️</div>
+  <h1>Heart Run 💘</h1>
 
-<h1>Will You Be My Valentine? 💘</h1>
+  <div class="hud">
+    <div class="pill">Score: <span id="score">0</span></div>
+    <div class="pill">High Score: <span id="highScore">0</span></div>
+    <div class="pill">Speed: <span id="speed">1.0</span>x</div>
+  </div>
 
-<div class="countdown">
-  ❤️ Countdown to February 25:
-  <div id="valentineCountdown"></div>
-</div>
+  <div class="wrap">
+    <!-- Internal resolution is 900x300, scaled to screen -->
+    <canvas id="game" width="900" height="300"></canvas>
+  </div>
 
-<div class="countdown">
-  💍 Countdown to Our 4-Year Anniversary (Feb 25, 2027):
-  <div id="anniversaryCountdown"></div>
-</div>
+  <div class="controls">
+    <button class="btn-jump" id="jumpBtn">⬆️ JUMP</button>
+    <button class="btn-forward" id="forwardBtn">➡️ FORWARD</button>
+    <button class="btn-mute" id="muteBtn">🔊 Music: On</button>
+  </div>
 
-<div class="slideshow">
-  <img src="456C3DFA-6694-47CD-9340-C41EDA179452.jpeg" class="active">
-  <img src="9779781B-6837-46AD-8A78-09F7AD151B48.jpeg">
-  <img src="EE0C9E1C-9B92-4CEC-91BF-210B3D5DB6D5.jpeg">
-</div>
+  <div class="hint">
+    Desktop: <b>Space</b> to jump, <b>Shift</b> to go forward. Mobile: tap <b>JUMP</b>, hold <b>FORWARD</b>.
+  </div>
 
-<button id="yesBtn" onclick="yesClicked()">Yes 💕</button>
-<button id="noBtn" onclick="noClicked()">No 🙄</button>
+  <!-- Music (keep song.mp3 in your repo) -->
+  <audio id="music" loop>
+    <source src="song.mp3" type="audio/mpeg" />
+  </audio>
 
-<div id="message"></div>
-
-<audio id="loveMusic" loop>
-  <source src="song.mp3" type="audio/mpeg">
-</audio>
-
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Game Over -->
+  <div class="overlay" id="overlay">
+    <div class="card">
+      <h2>Game Over 💔</h2>
+      <p>Your Score: <b id="finalScore">0</b></p>
+      <p>High Score: <b id="finalHigh">0</b></p>
+      <button class="btn-replay" id="replayBtn">Replay ❤️</button>
+      <p style="margin-top:10px; font-size: 13px; opacity: 0.9;">
+        Tip: Collect hearts to boost score. Don’t hit obstacles!
+      </p>
+    </div>
+  </div>
 
 <script>
-// COUNTDOWN
-function getCountdown(targetDate) {
-  const now = new Date().getTime();
-  const distance = targetDate - now;
+(() => {
+  // ---------- Canvas ----------
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
 
-  if (distance < 0) return "The day is here ❤️";
+  // ---------- UI ----------
+  const scoreEl = document.getElementById("score");
+  const highScoreEl = document.getElementById("highScore");
+  const speedEl = document.getElementById("speed");
+  const overlay = document.getElementById("overlay");
+  const finalScoreEl = document.getElementById("finalScore");
+  const finalHighEl = document.getElementById("finalHigh");
+  const replayBtn = document.getElementById("replayBtn");
 
-  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((distance / (1000 * 60)) % 60);
-  const seconds = Math.floor((distance / 1000) % 60);
+  // ---------- Music ----------
+  const music = document.getElementById("music");
+  const muteBtn = document.getElementById("muteBtn");
+  let musicEnabled = true;
 
-  return days + "d " + hours + "h " + minutes + "m " + seconds + "s";
-}
+  function setMuteUI() {
+    muteBtn.textContent = musicEnabled ? "🔊 Music: On" : "🔇 Music: Off";
+  }
 
-function updateCountdowns() {
-  const year = new Date().getFullYear();
-  const feb25ThisYear = new Date("February 25, " + year + " 00:00:00").getTime();
-  const feb252027 = new Date("February 25, 2027 00:00:00").getTime();
-
-  document.getElementById("valentineCountdown").innerHTML =
-    getCountdown(feb25ThisYear);
-
-  document.getElementById("anniversaryCountdown").innerHTML =
-    getCountdown(feb252027);
-}
-
-setInterval(updateCountdowns, 1000);
-
-// SLIDESHOW
-let slides = document.querySelectorAll(".slideshow img");
-let currentSlide = 0;
-
-function startSlideshow() {
-  setInterval(() => {
-    slides[currentSlide].classList.remove("active");
-    currentSlide = (currentSlide + 1) % slides.length;
-    slides[currentSlide].classList.add("active");
-  }, 3000);
-}
-
-// YES BUTTON
-function yesClicked() {
-
-  // Start music
-  document.getElementById("loveMusic").play();
-
-  // Confetti for 5 seconds
-  const duration = 5000;
-  const end = Date.now() + duration;
-
-  (function frame() {
-    confetti({
-      particleCount: 5,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-    if (Date.now() < end) {
-      requestAnimationFrame(frame);
+  muteBtn.addEventListener("click", async () => {
+    musicEnabled = !musicEnabled;
+    if (!musicEnabled) {
+      music.pause();
+      music.currentTime = 0;
+    } else {
+      // Only the game uses music: start once user interacts.
+      try { await music.play(); } catch {}
     }
-  })();
+    setMuteUI();
+  });
 
-  // Show I LOVE YOU overlay
-  const overlay = document.getElementById("loveOverlay");
-  overlay.style.opacity = 1;
+  // Try to start music only after first interaction (browser policy)
+  let musicBooted = false;
+  async function bootMusicOnce() {
+    if (musicBooted) return;
+    musicBooted = true;
+    if (!musicEnabled) return;
+    try { await music.play(); } catch {}
+  }
 
-  setTimeout(() => {
-    overlay.style.opacity = 0;
-    startSlideshow();
-  }, 3000);
-}
+  // ---------- High Score ----------
+  const HS_KEY = "heart_run_high_score_v1";
+  let highScore = Number(localStorage.getItem(HS_KEY) || 0);
+  highScoreEl.textContent = String(highScore);
 
-// NO BUTTON
-function noClicked() {
-  document.getElementById("message").innerHTML =
-    "Nice try 😤 You’re stuck with me ❤️";
-}
+  function setHighScore(v) {
+    highScore = v;
+    localStorage.setItem(HS_KEY, String(v));
+    highScoreEl.textContent = String(v);
+  }
+
+  // ---------- Game State ----------
+  const GROUND_Y = 245; // ground line
+  const gravity = 0.8;
+
+  let running = true;
+  let score = 0;
+
+  // Base speed increases slowly; "forward" multiplies it while held
+  let baseSpeed = 4.2;
+  let speedRamp = 0.0018; // speed gain per frame (tiny but continuous)
+  let forwardHeld = false;
+
+  // Player (pixel girl)
+  const player = {
+    x: 110,
+    y: GROUND_Y,
+    w: 28,
+    h: 42,
+    vy: 0,
+    onGround: true
+  };
+
+  // Entities
+  let hearts = [];
+  let obstacles = [];
+  let spawnTimer = 0;
+
+  function resetGame() {
+    running = true;
+    score = 0;
+    baseSpeed = 4.2;
+    forwardHeld = false;
+    hearts = [];
+    obstacles = [];
+    spawnTimer = 0;
+
+    player.y = GROUND_Y;
+    player.vy = 0;
+    player.onGround = true;
+
+    overlay.style.display = "none";
+    scoreEl.textContent = "0";
+    speedEl.textContent = "1.0";
+  }
+
+  // ---------- Controls ----------
+  function jump() {
+    bootMusicOnce();
+    if (!running) return;
+    if (player.onGround) {
+      player.vy = -13.5;
+      player.onGround = false;
+    }
+  }
+
+  // Touch buttons
+  const jumpBtn = document.getElementById("jumpBtn");
+  const forwardBtn = document.getElementById("forwardBtn");
+
+  jumpBtn.addEventListener("click", jump);
+
+  function setForward(v) {
+    bootMusicOnce();
+    forwardHeld = v;
+  }
+
+  // Hold to forward (touch + mouse)
+  forwardBtn.addEventListener("pointerdown", () => setForward(true));
+  forwardBtn.addEventListener("pointerup", () => setForward(false));
+  forwardBtn.addEventListener("pointercancel", () => setForward(false));
+  forwardBtn.addEventListener("pointerleave", () => setForward(false));
+
+  // Keyboard
+  window.addEventListener("keydown", (e) => {
+    if (e.code === "Space") { e.preventDefault(); jump(); }
+    if (e.code === "ShiftLeft" || e.code === "ShiftRight") setForward(true);
+    // Replay quickly
+    if (!running && (e.code === "Enter" || e.code === "Space")) {
+      e.preventDefault();
+      resetGame();
+    }
+  });
+
+  window.addEventListener("keyup", (e) => {
+    if (e.code === "ShiftLeft" || e.code === "ShiftRight") setForward(false);
+  });
+
+  // Replay
+  replayBtn.addEventListener("click", () => {
+    resetGame();
+  });
+
+  // ---------- Spawning ----------
+  function rand(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function spawnStuff(speed) {
+    // Spawn pacing depends on speed a bit
+    spawnTimer -= 1;
+    if (spawnTimer > 0) return;
+
+    // Next spawn in ~35–70 frames
+    spawnTimer = Math.floor(rand(35, 70));
+
+    // Decide heart vs obstacle
+    const roll = Math.random();
+
+    // 60% obstacles, 40% hearts
+    if (roll < 0.60) {
+      const typeRoll = Math.random();
+      // obstacle types: small / tall
+      const tall = typeRoll < 0.35;
+      obstacles.push({
+        x: canvas.width + 20,
+        y: tall ? GROUND_Y - 38 : GROUND_Y - 22,
+        w: tall ? 20 : 22,
+        h: tall ? 38 : 22,
+      });
+    } else {
+      // hearts appear at jumpable heights
+      hearts.push({
+        x: canvas.width + 20,
+        y: rand(GROUND_Y - 90, GROUND_Y - 35),
+        r: 10
+      });
+    }
+  }
+
+  // ---------- Collision ----------
+  function rectsOverlap(a, b) {
+    return (
+      a.x < b.x + b.w &&
+      a.x + a.w > b.x &&
+      a.y < b.y + b.h &&
+      a.y + a.h > b.y
+    );
+  }
+
+  function circleRectOverlap(cx, cy, cr, r) {
+    // Clamp circle center to rect
+    const closestX = Math.max(r.x, Math.min(cx, r.x + r.w));
+    const closestY = Math.max(r.y, Math.min(cy, r.y + r.h));
+    const dx = cx - closestX;
+    const dy = cy - closestY;
+    return (dx*dx + dy*dy) <= cr*cr;
+  }
+
+  // ---------- Drawing ----------
+  function drawBackground() {
+    // Soft sky tint
+    ctx.fillStyle = "rgba(255,255,255,1)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Ground
+    ctx.fillStyle = "rgba(0,0,0,0.12)";
+    ctx.fillRect(0, GROUND_Y + player.h - 2, canvas.width, 3);
+
+    // Little clouds
+    ctx.fillStyle = "rgba(255,120,160,0.18)";
+    for (let i=0; i<6; i++) {
+      const x = (i*170 + (Date.now()/40) % 170) % (canvas.width + 200) - 100;
+      const y = 45 + (i%3)*18;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 38, 14, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // Pixel girl (brown hair)
+  function drawPixelGirl(x, y) {
+    // Pixel size
+    const p = 3;
+    // Build a simple sprite with colored pixels
+    // Coordinates are relative to top-left
+    const sprite = [
+      // Hair (brown)
+      {c:"#6b3f2a", pts:[[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1],[6,1],[2,2],[3,2],[6,2],[1,3],[2,3],[6,3],[7,3]]},
+      // Face (skin)
+      {c:"#f2c7a5", pts:[[3,2],[4,2],[5,2],[2,3],[3,3],[4,3],[5,3],[6,3],[2,4],[3,4],[4,4],[5,4],[6,4]]},
+      // Eyes
+      {c:"#111111", pts:[[3,3],[5,3]]},
+      // Shirt (pink)
+      {c:"#ff4d6d", pts:[[2,5],[3,5],[4,5],[5,5],[6,5],[2,6],[3,6],[4,6],[5,6],[6,6]]},
+      // Arms (skin)
+      {c:"#f2c7a5", pts:[[1,6],[7,6]]},
+      // Shorts (dark)
+      {c:"#2b2b2b", pts:[[3,7],[4,7],[5,7],[3,8],[4,8],[5,8]]},
+      // Legs (skin)
+      {c:"#f2c7a5", pts:[[3,9],[5,9],[3,10],[5,10]]},
+      // Shoes
+      {c:"#111111", pts:[[2,11],[3,11],[4,11],[5,11],[6,11]]},
+    ];
+
+    for (const layer of sprite) {
+      ctx.fillStyle = layer.c;
+      for (const [sx, sy] of layer.pts) {
+        ctx.fillRect(x + sx*p, y + sy*p, p, p);
+      }
+    }
+  }
+
+  function drawHeart(h) {
+    ctx.font = "22px Arial";
+    ctx.fillText("❤️", h.x - 10, h.y + 8);
+  }
+
+  function drawObstacle(o) {
+    ctx.fillStyle = "rgba(0,0,0,0.85)";
+    ctx.fillRect(o.x, o.y, o.w, o.h);
+    // little highlight
+    ctx.fillStyle = "rgba(255,255,255,0.18)";
+    ctx.fillRect(o.x + 3, o.y + 3, Math.max(2, o.w - 10), 2);
+  }
+
+  // ---------- Game Over ----------
+  function gameOver() {
+    running = false;
+    // stop forward
+    forwardHeld = false;
+
+    // Update high score
+    if (score > highScore) setHighScore(score);
+
+    finalScoreEl.textContent = String(score);
+    finalHighEl.textContent = String(highScore);
+    overlay.style.display = "flex";
+  }
+
+  // ---------- Main Loop ----------
+  function loop() {
+    // Speed changes
+    const speedMult = forwardHeld ? 1.55 : 1.0;
+    const speed = baseSpeed * speedMult;
+
+    if (running) {
+      baseSpeed += speedRamp;               // gets faster over time
+      score += 1;                           // infinite score (ticks per frame)
+      scoreEl.textContent = String(score);
+      speedEl.textContent = (speed / 4.2).toFixed(1);
+
+      // Physics
+      player.vy += gravity;
+      player.y += player.vy;
+
+      if (player.y >= GROUND_Y) {
+        player.y = GROUND_Y;
+        player.vy = 0;
+        player.onGround = true;
+      }
+
+      // Spawn things
+      spawnStuff(speed);
+
+      // Move entities
+      for (const h of hearts) h.x -= speed;
+      for (const o of obstacles) o.x -= speed;
+
+      // Cleanup offscreen
+      hearts = hearts.filter(h => h.x > -50);
+      obstacles = obstacles.filter(o => o.x > -60);
+
+      // Collect hearts
+      const playerRect = { x: player.x, y: player.y, w: player.w, h: player.h };
+      for (let i = hearts.length - 1; i >= 0; i--) {
+        const h = hearts[i];
+        if (circleRectOverlap(h.x, h.y, 12, playerRect)) {
+          hearts.splice(i, 1);
+          score += 80; // bonus points
+        }
+      }
+
+      // Hit obstacle = death
+      for (const o of obstacles) {
+        if (rectsOverlap(playerRect, o)) {
+          gameOver();
+          break;
+        }
+      }
+    }
+
+    // Draw
+    drawBackground();
+
+    // Draw hearts + obstacles
+    for (const h of hearts) drawHeart(h);
+    for (const o of obstacles) drawObstacle(o);
+
+    // Draw player (pixel girl)
+    drawPixelGirl(player.x - 10, player.y - 36);
+
+    requestAnimationFrame(loop);
+  }
+
+  // Start
+  setMuteUI();
+  loop();
+
+  // Also boot music on any first touch/click anywhere (not autoplay)
+  window.addEventListener("pointerdown", bootMusicOnce, { once: true });
+})();
 </script>
 
 </body>
 </html>
-
