@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Our Love Story 💕</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(to right, #ff758c, #ff7eb3);
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+h1 {
+  font-size: 3em;
+  margin-bottom: 20px;
+}
+
+.countdown {
+  font-size: 1.4em;
+  margin: 10px 0;
+}
+
+button {
+  padding: 15px 30px;
+  font-size: 20px;
+  margin: 10px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+#yesBtn {
+  background-color: #ff4d6d;
+  color: white;
+}
+
+#yesBtn:hover {
+  transform: scale(1.1);
+}
+
+#noBtn {
+  background-color: white;
+  color: black;
+  position: absolute;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Will You Be My Valentine? 💘</h1>
+
+<div class="countdown">
+  ❤️ Countdown to February 25:
+  <div id="valentineCountdown"></div>
+</div>
+
+<div class="countdown">
+  💍 Countdown to Our 4-Year Anniversary (Feb 25, 2027):
+  <div id="anniversaryCountdown"></div>
+</div>
+
+<button id="yesBtn" onclick="yesClicked()">Yes 💕</button>
+<button id="noBtn" onmouseover="moveButton()">No 🙄</button>
+
+<script>
+function getCountdown(targetDate) {
+  const now = new Date().getTime();
+  const distance = targetDate - now;
+
+  if (distance < 0) {
+    return "The day is here ❤️";
+  }
+
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((distance / (1000 * 60)) % 60);
+  const seconds = Math.floor((distance / 1000) % 60);
+
+  return days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+}
+
+function updateCountdowns() {
+  const year = new Date().getFullYear();
+  const feb25ThisYear = new Date("February 25, " + year + " 00:00:00").getTime();
+  const feb252027 = new Date("February 25, 2027 00:00:00").getTime();
+
+  document.getElementById("valentineCountdown").innerHTML =
+    getCountdown(feb25ThisYear);
+
+  document.getElementById("anniversaryCountdown").innerHTML =
+    getCountdown(feb252027);
+}
+
+setInterval(updateCountdowns, 1000);
+
+function yesClicked() {
+  document.body.innerHTML =
+    "<h1>4 Years Down… Forever To Go ❤️💍</h1><p>You mean everything to me.</p>";
+}
+
+function moveButton() {
+  const button = document.getElementById("noBtn");
+  const x = Math.random() * (window.innerWidth - 100);
+  const y = Math.random() * (window.innerHeight - 50);
+  button.style.left = x + "px";
+  button.style.top = y + "px";
+}
+</script>
+
+</body>
+</html>
