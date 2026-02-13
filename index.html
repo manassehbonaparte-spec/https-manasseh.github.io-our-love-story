@@ -7,8 +7,8 @@
   <style>
     :root{
       --bg:#313338; --serverbar:#1e1f22; --sidebar:#2b2d31; --chat:#313338; --panel:#232428;
-      --text:#dbdee1; --muted:#b5bac1; --accent:#5865f2; --green:#23a55a; --danger:#f23f42;
-      --outline:rgba(255,255,255,0.08); --shadow:rgba(0,0,0,0.35);
+      --text:#dbdee1; --muted:#b5bac1; --accent:#5865f2; --outline:rgba(255,255,255,0.08);
+      --shadow:rgba(0,0,0,0.35);
     }
     *{box-sizing:border-box}
     body{
@@ -17,7 +17,7 @@
     }
     .app{display:flex;height:100vh;width:100vw}
 
-    /* Servers */
+    /* Servers bar */
     .servers{
       width:72px;background:var(--serverbar);padding:10px 0;display:flex;flex-direction:column;
       align-items:center;gap:10px;overflow-y:auto;
@@ -30,10 +30,7 @@
     }
     .serverDot:hover{border-radius:16px;background:#3a3c43;transform:translateY(-1px)}
     .serverDot.active{border-radius:16px;background:var(--accent);border-color:rgba(255,255,255,.12)}
-    .pill{
-      position:absolute;left:-10px;width:6px;height:18px;border-radius:999px;background:#fff;opacity:0;
-      transition:opacity .15s ease,height .15s ease;
-    }
+    .pill{position:absolute;left:-10px;width:6px;height:18px;border-radius:999px;background:#fff;opacity:0;transition:opacity .15s ease,height .15s ease}
     .serverDot.active .pill{opacity:1;height:30px}
     .divider{width:32px;height:2px;background:rgba(255,255,255,.08);margin:4px 0;border-radius:999px}
 
@@ -58,7 +55,7 @@
     }
     .chan{
       padding:8px 10px;border-radius:8px;margin:2px 6px;cursor:pointer;color:var(--muted);
-      display:flex;align-items:center;gap:8px;user-select:none;
+      display:flex;align-items:center;gap:8px;user-select:none
     }
     .chan:hover{background:rgba(255,255,255,.06);color:var(--text)}
     .chan.active{background:rgba(255,255,255,.10);color:var(--text)}
@@ -78,7 +75,7 @@
       background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);border-radius:14px;
       box-shadow:0 18px 40px var(--shadow);padding:14px;margin:10px 0;
     }
-    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-start}
+    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
     .badge{
       display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;
       background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);
@@ -91,10 +88,6 @@
     .btn:hover{background:rgba(255,255,255,.14)}
     .btnAccent{background:var(--accent);border-color:rgba(255,255,255,.14)}
     .btnAccent:hover{filter:brightness(1.05)}
-    .btnDanger{background:rgba(242,63,66,.18);border-color:rgba(242,63,66,.35)}
-    .btnDanger:hover{background:rgba(242,63,66,.26)}
-    .btnGreen{background:rgba(35,165,90,.18);border-color:rgba(35,165,90,.35)}
-    .btnGreen:hover{background:rgba(35,165,90,.26)}
 
     /* Slideshow */
     .slideWrap{
@@ -109,36 +102,9 @@
     .slideWrap img.active{opacity:1}
     .placeholder{
       position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;
-      color:var(--muted);font-weight:950;text-align:center;
+      color:var(--muted);font-weight:950;text-align:center;line-height:1.5;
     }
-
-    /* Game */
-    .gameWrap{width:min(980px,100%);margin-top:10px;position:relative}
-    #game{width:100%;aspect-ratio:3/1;border-radius:14px;background:#fff;display:block;border:1px solid rgba(255,255,255,.12)}
-    .gamePad{position:absolute;inset:0;pointer-events:none}
-    .padBtn{
-      pointer-events:auto;position:absolute;border:none;font-weight:1000;border-radius:14px;padding:10px 12px;
-      cursor:pointer;box-shadow:0 12px 26px rgba(0,0,0,.30);opacity:.92;
-    }
-    .padJump{left:10px;bottom:10px;background:var(--accent);color:#fff}
-    .padFwd{right:10px;bottom:10px;background:#fff;color:#111}
-    .padPause{top:10px;right:10px;background:rgba(0,0,0,.45);color:#fff}
-
-    /* Overlays */
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:16px;z-index:999}
-    .overlayCard{
-      width:min(560px,92vw);background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);
-      border-radius:16px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.50);backdrop-filter:blur(10px);
-      position:relative;
-    }
-    .closeX{
-      position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:12px;
-      border:1px solid rgba(255,255,255,.20);background:rgba(0,0,0,.25);color:var(--text);
-      font-weight:1000;cursor:pointer;
-    }
-    .closeX:hover{background:rgba(0,0,0,.35)}
-    .centerText{text-align:center;font-weight:1000}
-
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px}
     @media (max-width:860px){.sidebar{display:none}}
   </style>
 </head>
@@ -163,86 +129,109 @@
       <div class="channels">
         <div class="cat">Memories</div>
         <div class="chan active" data-chan="slideshow"><span class="hash">#</span>slideshow</div>
-        <div class="chan" data-chan="notes"><span class="hash">#</span>notes</div>
         <div class="cat">Special</div>
         <div class="chan" data-chan="valentine"><span class="hash">#</span>valentine</div>
-        <div class="chan" data-chan="controls"><span class="hash">#</span>controls</div>
+        <div class="chan" data-chan="debug"><span class="hash">#</span>debug</div>
       </div>
     </div>
 
     <div class="chat">
       <div class="chatTop">
-        <div class="channelTitle" id="channelTitle">#valentine</div>
-        <div class="subtle" id="channelHint">Timers live in 22 because that’s when you started.</div>
+        <div class="channelTitle" id="channelTitle">#slideshow</div>
+        <div class="subtle" id="channelHint">Tap photo to go next • auto plays</div>
       </div>
       <div class="chatBody" id="chatBody"></div>
     </div>
   </div>
 
-  <!-- Music -->
+  <!-- music -->
   <audio id="music" loop>
     <source src="song.mp3" type="audio/mpeg" />
   </audio>
 
-  <!-- Game Start Overlay -->
-  <div class="overlay" id="gameStart">
-    <div class="overlayCard">
-      <button class="closeX" id="startClose">✕</button>
-      <h2 class="centerText" style="margin:4px 0 8px;">🎮 Heart Run</h2>
-      <div class="centerText" style="color:var(--muted); font-weight:900; line-height:1.6;">
-        Collect hearts ❤️ (every 15 hearts = +25 score).<br/>
-        Dodge barrels & cars. It gets faster faster.
-      </div>
-      <div style="height:10px;"></div>
-      <div class="row" style="justify-content:center;">
-        <button class="btn btnAccent" id="startBtn" style="min-width:180px;">Start</button>
-        <button class="btn" id="howBtn" style="min-width:180px;">Controls</button>
-      </div>
-      <div id="howBox" style="display:none; margin-top:12px; color:var(--muted); font-weight:900; line-height:1.65;">
-        Keyboard: <b>Space</b>=Jump • <b>Shift</b>=Forward • <b>P</b>=Pause<br/>
-        Mobile: use the on-screen buttons.
-      </div>
-      <div id="countdown" class="centerText" style="display:none; margin-top:14px; font-size:44px; font-weight:1000;">3</div>
-    </div>
-  </div>
-
-  <!-- Game Over Overlay -->
-  <div class="overlay" id="gameOver">
-    <div class="overlayCard">
-      <button class="closeX" id="overClose">✕</button>
-      <h2 style="margin:4px 0 8px;" class="centerText">Game Over 💔</h2>
-      <div class="row" style="justify-content:center;">
-        <div class="badge">Score: <span id="finalScore">0</span></div>
-        <div class="badge">Hearts: <span id="finalHearts">0</span></div>
-        <div class="badge">High: <span id="finalHigh">0</span></div>
-      </div>
-      <button class="btn btnAccent" style="width:100%; margin-top:12px;" id="replayBtn">Replay ❤️</button>
-      <div style="margin-top:10px; color:var(--muted); font-weight:900; font-size:13px; text-align:center;">
-        Space=Jump • Shift=Forward • P=Pause
-      </div>
-    </div>
-  </div>
-
 <script>
-/* ====== VERSION TAG (so you can tell if the live site updated) ====== */
-const SITE_VERSION = "DISCORD REVAMP — WORKING BUILD v1";
+/* =======================
+   CONFIG (your repo)
+======================= */
+const SITE_VERSION = "DISCORD REVAMP — IMAGE RAW FIX (SHOULD SHOW PHOTOS)";
+const RAW_BASE = "https://raw.githubusercontent.com/manassehbonaparte-spec/https-manasseh.github.io-our-love-story/main/";
 
-/* ====== IMAGE LISTS (exact filenames) ====== */
+/* Base names ONLY (no extensions) */
 const IMAGES = {
-  y22: ["22_01.JPEG","22_02.JPEG","22_03.JPEG","22_04.JPEG","22_05.JPEG","22_06.JPEG"],
-  y23: ["23_01.JPEG","23_02.JPEG","23_03.JPEG","23_04.JPEG","23_05.JPEG","23_06.JPEG"],
-  y24: ["24_01.JPEG","24_02.JPEG","24_03.JPEG","24_04.JPEG","24_05.JPEG","24_06.JPEG","24_07.JPEG","24_08.JPEG"],
-  y25: ["25_01.JPEG","25_02.JPEG","25_03.JPEG","25_04.JPEG","25_05.JPEG","25_06.JPEG","25_07.JPEG","25_08.JPEG","25_09.JPEG"],
-  // 26: supports BOTH renaming styles (so it still works)
+  y22: ["22_01","22_02","22_03","22_04","22_05","22_06"],
+  y23: ["23_01","23_02","23_03","23_04","23_05","23_06"],
+  y24: ["24_01","24_02","24_03","24_04","24_05","24_06","24_07","24_08"],
+  y25: ["25_01","25_02","25_03","25_04","25_05","25_06","25_07","25_08","25_09"],
   y26: [
-    "26_01.JPEG","26_02.JPEG","26_03.JPEG",
-    "456C3DFA-6694-47CD-9340-C41EDA179452.JPEG",
-    "9779781B-6837-46AD-8A78-09F7AD151B48.JPEG",
-    "EE0C9E1C-9B92-4CEC-91BF-210B3D5DB6D5.JPEG"
+    "456C3DFA-6694-47CD-9340-C41EDA179452",
+    "9779781B-6837-46AD-8A78-09F7AD151B48",
+    "EE0C9E1C-9B92-4CEC-91BF-210B3D5DB6D5"
   ]
 };
 
-/* ====== TIMERS ====== */
+const EXT_TRIES = [".JPEG",".JPG",".PNG",".jpeg",".jpg",".png",".Jpeg",".JPeg",".Png",".jPEG",".jPg",".pNg"];
+
+/* =======================
+   STATE
+======================= */
+let currentServer = "y22";
+let currentChan = "slideshow";
+
+/* =======================
+   HELPERS
+======================= */
+const chatBody = document.getElementById("chatBody");
+const serverTitle = document.getElementById("serverTitle");
+const channelTitle = document.getElementById("channelTitle");
+const channelHint = document.getElementById("channelHint");
+
+function serverLabel(id){
+  if (id === "game") return "Game";
+  return "20" + id.slice(1);
+}
+function setHeader(){
+  serverTitle.textContent = serverLabel(currentServer);
+  channelTitle.textContent = "#" + currentChan;
+  if (currentChan === "debug") channelHint.textContent = "This shows which image URLs are found.";
+  else if (currentServer === "y22" && currentChan === "valentine") channelHint.textContent = "Timers + music live here.";
+  else channelHint.textContent = "Tap photo to go next • auto plays";
+}
+
+function setActiveServerUI(){
+  document.querySelectorAll(".serverDot").forEach(el => el.classList.toggle("active", el.dataset.server === currentServer));
+}
+function setActiveChanUI(){
+  document.querySelectorAll(".chan").forEach(el => el.classList.toggle("active", el.dataset.chan === currentChan));
+}
+
+/* =======================
+   MUSIC
+======================= */
+const music = document.getElementById("music");
+const musicBtn = document.getElementById("musicBtn");
+let musicOn = true;
+
+function syncMusicIcon(){ musicBtn.textContent = musicOn ? "🔊" : "🔇"; }
+syncMusicIcon();
+
+async function bootMusic(){
+  try { if (musicOn) await music.play(); } catch {}
+}
+window.addEventListener("pointerdown", bootMusic, { once:true });
+
+musicBtn.addEventListener("click", async () => {
+  musicOn = !musicOn;
+  if (!musicOn){
+    music.pause(); music.currentTime = 0;
+  } else {
+    try { await music.play(); } catch {}
+  }
+  syncMusicIcon();
+});
+
+/* =======================
+   TIMERS (22)
+======================= */
 const TARGET_2027 = new Date("February 25, 2027 00:00:00").getTime();
 function targetThisYear(){
   const y = new Date().getFullYear();
@@ -259,99 +248,58 @@ function countdownText(targetMs){
   return `${days}d ${hours}h ${mins}m ${secs}s`;
 }
 
-/* ====== DISCORD NAV STATE ====== */
-let currentServer = "y22";
-let currentChan = "valentine";
-
-const chatBody = document.getElementById("chatBody");
-const serverTitle = document.getElementById("serverTitle");
-const channelTitle = document.getElementById("channelTitle");
-const channelHint = document.getElementById("channelHint");
-
-function serverLabel(id){
-  if (id === "game") return "Game";
-  return "20" + id.slice(1);
-}
-function chanLabel(id){ return "#" + id; }
-
-function setHeader(){
-  serverTitle.textContent = serverLabel(currentServer);
-  channelTitle.textContent = chanLabel(currentChan);
-
-  if (currentServer === "y22" && currentChan === "valentine"){
-    channelHint.textContent = "Both timers live here because that’s when it started.";
-  } else if (currentServer === "game"){
-    channelHint.textContent = "Game lives here. Start menu + pause + hearts.";
-  } else {
-    channelHint.textContent = "Tap the slideshow image to go to the next photo.";
-  }
+/* =======================
+   SLIDESHOW LOADING (RAW)
+======================= */
+function resolveFirstWorkingSrc(base){
+  return new Promise((resolve) => {
+    let idx = 0;
+    const test = () => {
+      if (idx >= EXT_TRIES.length) return resolve(null);
+      const src = RAW_BASE + base + EXT_TRIES[idx];
+      const img = new Image();
+      img.onload = () => resolve(src);
+      img.onerror = () => { idx++; test(); };
+      img.src = src;
+    };
+    test();
+  });
 }
 
-/* ====== MUSIC ====== */
-const music = document.getElementById("music");
-const musicBtn = document.getElementById("musicBtn");
-let musicOn = true;
-let musicBooted = false;
-
-function syncMusicIcon(){ musicBtn.textContent = musicOn ? "🔊" : "🔇"; }
-async function bootMusicOnce(){
-  if (musicBooted) return;
-  musicBooted = true;
-  if (!musicOn) return;
-  try { await music.play(); } catch {}
-}
-musicBtn.addEventListener("click", async () => {
-  musicOn = !musicOn;
-  if (!musicOn){
-    music.pause(); music.currentTime = 0;
-  } else {
-    try { await music.play(); } catch {}
-  }
-  syncMusicIcon();
-});
-syncMusicIcon();
-window.addEventListener("pointerdown", bootMusicOnce, { once: true });
-
-/* ====== SLIDESHOW (auto + click + swipe) ====== */
-async function renderSlideshow(fileNames){
+async function buildSlideshow(baseNames){
   const wrap = document.createElement("div");
   wrap.className = "slideWrap";
 
-  if (!fileNames || fileNames.length === 0){
-    const ph = document.createElement("div");
-    ph.className = "placeholder";
-    ph.textContent = "No images here yet.";
-    wrap.appendChild(ph);
-    return {wrap, start:()=>{}};
+  const resolved = [];
+  for (const b of (baseNames || [])){
+    const src = await resolveFirstWorkingSrc(b);
+    if (src) resolved.push(src);
   }
 
-  // Create <img> tags; keep only the ones that actually load
-  const loadedImgs = [];
-  await Promise.all(fileNames.map((src) => new Promise((resolve) => {
+  if (resolved.length === 0){
+    wrap.innerHTML = `
+      <div class="placeholder">
+        No images loaded.<br/>
+        That means RAW urls for these names weren’t found.<br/>
+        Go to <b>#debug</b> to see which ones fail.
+      </div>
+    `;
+    return { wrap, start: () => {} };
+  }
+
+  const imgs = resolved.map((src, i) => {
     const im = document.createElement("img");
-    im.onload = () => { loadedImgs.push(im); resolve(); };
-    im.onerror = () => resolve();
     im.src = src;
-  })));
-
-  if (loadedImgs.length === 0){
-    const ph = document.createElement("div");
-    ph.className = "placeholder";
-    ph.innerHTML = `No images loaded.<br/>Check filenames match repo exactly.`;
-    wrap.appendChild(ph);
-    return {wrap, start:()=>{}};
-  }
-
-  loadedImgs.forEach((im, i) => {
     if (i === 0) im.classList.add("active");
     wrap.appendChild(im);
+    return im;
   });
 
   let i = 0;
   const show = (n) => {
-    loadedImgs[i].classList.remove("active");
-    i = (n + loadedImgs.length) % loadedImgs.length;
-    loadedImgs[i].classList.add("active");
+    imgs[i].classList.remove("active");
+    i = (n + imgs.length) % imgs.length;
+    imgs[i].classList.add("active");
   };
   const next = () => show(i + 1);
   const prev = () => show(i - 1);
@@ -366,13 +314,10 @@ async function renderSlideshow(fileNames){
 
   // swipe
   let startX = null;
-  wrap.addEventListener("touchstart", (e) => {
-    if (!e.touches || !e.touches[0]) return;
-    startX = e.touches[0].clientX;
-  }, {passive:true});
+  wrap.addEventListener("touchstart", (e) => { startX = e.touches?.[0]?.clientX ?? null; }, {passive:true});
   wrap.addEventListener("touchend", (e) => {
     if (startX === null) return;
-    const endX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : startX;
+    const endX = e.changedTouches?.[0]?.clientX ?? startX;
     const dx = endX - startX;
     startX = null;
     if (Math.abs(dx) < 35) return;
@@ -380,79 +325,70 @@ async function renderSlideshow(fileNames){
     start();
   });
 
-  return {wrap, start};
+  return { wrap, start };
 }
 
-/* ====== UI ACTIVE STATES ====== */
-function setActiveServersUI(){
-  document.querySelectorAll(".serverDot").forEach(el => {
-    el.classList.toggle("active", el.dataset.server === currentServer);
-  });
-}
-function setActiveChanUI(){
-  document.querySelectorAll(".chan").forEach(el => {
-    el.classList.toggle("active", el.dataset.chan === currentChan);
-  });
+/* =======================
+   DEBUG LIST
+======================= */
+async function buildDebugPanel(baseNames){
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `<div style="font-weight:1000;">Image Debug</div>
+  <div style="margin-top:6px;color:var(--muted);font-weight:900;">It will show ✅ for files it finds on RAW.</div>
+  <div id="dbg" class="mono" style="margin-top:10px;line-height:1.6;"></div>`;
+  const dbg = card.querySelector("#dbg");
+
+  for (const b of (baseNames || [])){
+    let found = null;
+    for (const ext of EXT_TRIES){
+      const url = RAW_BASE + b + ext;
+      try{
+        const r = await fetch(url, { method:"HEAD", cache:"no-store" });
+        if (r.ok){ found = url; break; }
+      } catch {}
+    }
+    if (found) dbg.innerHTML += `✅ ${found}<br/>`;
+    else dbg.innerHTML += `❌ ${b} (not found with any extension)<br/>`;
+  }
+  return card;
 }
 
-/* ====== RENDER ====== */
+/* =======================
+   RENDER
+======================= */
 function makeCard(html){
-  const div = document.createElement("div");
-  div.className = "card";
-  div.innerHTML = html;
-  return div;
+  const d = document.createElement("div");
+  d.className = "card";
+  d.innerHTML = html;
+  return d;
 }
-
-let GAME = null;
 
 async function render(){
   chatBody.innerHTML = "";
   setHeader();
 
-  // Version banner so you KNOW the live page updated
+  // Version card
   chatBody.appendChild(makeCard(`
     <div style="font-weight:1000;">${SITE_VERSION}</div>
     <div style="margin-top:6px;color:var(--muted);font-weight:900;">
-      If you can see this, the website is using the new index.html.
+      If you can see this, your site updated correctly.
     </div>
   `));
 
-  // Game server
+  // game placeholder (so it isn't blank)
   if (currentServer === "game"){
     chatBody.appendChild(makeCard(`
-      <div style="font-weight:1000; font-size:18px;">🎮 Heart Run</div>
-      <div style="margin-top:8px; color:var(--muted); font-weight:900;">
-        Collect ❤️ hearts. Every 15 hearts = +25 score bonus. Pause with P.
+      <div style="font-weight:1000;font-size:18px;">🎮 Game Server</div>
+      <div style="margin-top:6px;color:var(--muted);font-weight:900;line-height:1.6;">
+        The game can be re-added after photos are confirmed working.<br/>
+        Right now this build is focused on making your images show 100%.
       </div>
     `));
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div class="row" style="justify-content:space-between;">
-        <div class="badge">Score: <span id="score">0</span></div>
-        <div class="badge">Hearts: <span id="hearts">0</span></div>
-        <div class="badge">High: <span id="high">0</span></div>
-        <div class="badge">Speed: <span id="spd">1.0</span>x</div>
-        <button class="btn btnGreen" id="pauseToggle">⏸ Pause</button>
-      </div>
-      <div class="gameWrap">
-        <canvas id="game" width="900" height="300"></canvas>
-        <div class="gamePad">
-          <button class="padBtn padPause" id="padPause">⏸</button>
-          <button class="padBtn padJump" id="padJump">⬆️ Jump</button>
-          <button class="padBtn padFwd" id="padFwd">➡️ Forward</button>
-        </div>
-      </div>
-    `;
-    chatBody.appendChild(card);
-
-    initGame();
-    showStartOverlay();
     return;
   }
 
-  // 22 valentine with timers + music
+  // 22 valentine channel
   if (currentServer === "y22" && currentChan === "valentine"){
     const c = makeCard(`
       <div style="font-weight:1000; font-size:18px;">Will you be my Valentine? 💘</div>
@@ -461,14 +397,7 @@ async function render(){
         <span class="badge">💍 Feb 25, 2027: <span id="cd2"></span></span>
       </div>
       <div class="row" style="margin-top:12px;">
-        <button class="btn btnAccent" id="yesBtn">Yes 💕</button>
-        <button class="btn btnDanger" id="noBtn">No 🙄</button>
-      </div>
-      <div class="row" style="margin-top:12px;">
-        <button class="btn btnGreen" id="musicToggle22">▶ Play Music</button>
-      </div>
-      <div style="margin-top:10px; color:var(--muted); font-weight:900;">
-        Tap the slideshow image to skip to the next photo.
+        <button class="btn btnAccent" id="musicToggle22">▶ Play / Pause Music</button>
       </div>
     `);
     chatBody.appendChild(c);
@@ -482,24 +411,12 @@ async function render(){
     update();
     setInterval(update, 1000);
 
-    document.getElementById("yesBtn").addEventListener("click", async () => {
-      await bootMusicOnce();
-      alert("I LOVE YOU ❤️");
-    });
-    document.getElementById("noBtn").addEventListener("click", () => {
-      alert("Nice try 😤❤️");
-    });
-
-    const musicBtn22 = document.getElementById("musicToggle22");
-    function syncButton(){ musicBtn22.textContent = music.paused ? "▶ Play Music" : "⏸ Pause Music"; }
-    musicBtn22.addEventListener("click", async () => {
+    document.getElementById("musicToggle22").addEventListener("click", async () => {
       if (music.paused){ try { await music.play(); } catch {} }
-      else { music.pause(); }
-      syncButton();
+      else music.pause();
     });
-    syncButton();
 
-    const {wrap, start} = await renderSlideshow(IMAGES.y22);
+    const {wrap, start} = await buildSlideshow(IMAGES.y22);
     const pics = makeCard(`<div style="font-weight:1000; margin-bottom:10px;">2022 slideshow</div>`);
     pics.appendChild(wrap);
     chatBody.appendChild(pics);
@@ -507,54 +424,40 @@ async function render(){
     return;
   }
 
-  // Slideshow channel (default)
-  if (currentChan === "slideshow"){
+  // debug channel
+  if (currentChan === "debug"){
     chatBody.appendChild(makeCard(`
-      <div style="font-weight:1000; font-size:18px;">${serverLabel(currentServer)} memories 📸</div>
-      <div style="margin-top:6px; color:var(--muted); font-weight:900;">Auto slideshow + click/tap for next.</div>
+      <div style="font-weight:1000;">Debug for ${serverLabel(currentServer)}</div>
+      <div style="margin-top:6px;color:var(--muted);font-weight:900;">
+        This lists the exact RAW URLs it can (or cannot) find.
+      </div>
     `));
-    const {wrap, start} = await renderSlideshow(IMAGES[currentServer]);
-    const pics = makeCard(`<div style="font-weight:1000; margin-bottom:10px;">Slideshow</div>`);
-    pics.appendChild(wrap);
-    chatBody.appendChild(pics);
-    start();
+    chatBody.appendChild(await buildDebugPanel(IMAGES[currentServer]));
     return;
   }
 
-  if (currentChan === "notes"){
-    chatBody.appendChild(makeCard(`
-      <div style="font-weight:1000;">Notes 📝</div>
-      <div style="margin-top:8px; color:var(--muted); font-weight:900; line-height:1.6;">
-        We can add message-style chat later if you want.
-      </div>
-    `));
-    return;
-  }
+  // default slideshow
+  chatBody.appendChild(makeCard(`
+    <div style="font-weight:1000;font-size:18px;">${serverLabel(currentServer)} memories 📸</div>
+    <div style="margin-top:6px;color:var(--muted);font-weight:900;">Auto-play slideshow + tap/click for next</div>
+  `));
 
-  if (currentChan === "controls"){
-    chatBody.appendChild(makeCard(`
-      <div style="font-weight:1000;">Controls 🎛️</div>
-      <div style="margin-top:8px; color:var(--muted); font-weight:900; line-height:1.65;">
-        • Music: sidebar 🔊/🔇 and 22 #valentine Play/Pause<br/>
-        • Slideshows: auto + click/tap next (swipe supported)<br/>
-        • Game: Space=Jump, Shift=Forward, P=Pause (mobile buttons included)
-      </div>
-    `));
-    return;
-  }
+  const {wrap, start} = await buildSlideshow(IMAGES[currentServer]);
+  const pics = makeCard(`<div style="font-weight:1000; margin-bottom:10px;">Slideshow</div>`);
+  pics.appendChild(wrap);
+  chatBody.appendChild(pics);
+  start();
 }
 
-/* ====== NAV EVENTS ====== */
+/* =======================
+   NAV EVENTS
+======================= */
 document.getElementById("servers").addEventListener("click", (e) => {
   const dot = e.target.closest(".serverDot");
   if (!dot) return;
-
   currentServer = dot.dataset.server;
-  if (currentServer === "y22") currentChan = "valentine";
-  else if (currentServer === "game") currentChan = "slideshow";
-  else currentChan = "slideshow";
-
-  setActiveServersUI();
+  currentChan = (currentServer === "y22") ? "valentine" : "slideshow";
+  setActiveServerUI();
   setActiveChanUI();
   render();
 });
@@ -567,453 +470,15 @@ document.querySelectorAll(".chan").forEach(el => {
   });
 });
 
-/* ====== GAME ====== */
-const startOverlay = document.getElementById("gameStart");
-const overOverlay  = document.getElementById("gameOver");
-const startBtn = document.getElementById("startBtn");
-const howBtn = document.getElementById("howBtn");
-const howBox = document.getElementById("howBox");
-const countdownEl = document.getElementById("countdown");
-const startClose = document.getElementById("startClose");
-const overClose = document.getElementById("overClose");
-const replayBtn = document.getElementById("replayBtn");
-
-howBtn.addEventListener("click", () => {
-  howBox.style.display = (howBox.style.display === "none" ? "block" : "none");
-});
-startClose.addEventListener("click", () => { startOverlay.style.display = "none"; });
-overClose.addEventListener("click", () => { if (GAME) GAME.resetToStart(); });
-replayBtn.addEventListener("click", () => { hideGameOverOverlay(); showStartOverlay(); });
-
-function showStartOverlay(){
-  startOverlay.style.display = "flex";
-  countdownEl.style.display = "none";
-  howBox.style.display = "none";
-  startBtn.disabled = false;
-}
-function showGameOverOverlay(final){
-  document.getElementById("finalScore").textContent = String(final.score);
-  document.getElementById("finalHearts").textContent = String(final.hearts);
-  document.getElementById("finalHigh").textContent = String(final.high);
-  overOverlay.style.display = "flex";
-}
-function hideGameOverOverlay(){ overOverlay.style.display = "none"; }
-
-function initGame(){
-  if (GAME && GAME.initialized) return;
-
-  const canvas = document.getElementById("game");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-
-  const scoreEl = document.getElementById("score");
-  const heartsEl = document.getElementById("hearts");
-  const highEl = document.getElementById("high");
-  const spdEl = document.getElementById("spd");
-
-  const pauseToggle = document.getElementById("pauseToggle");
-  const padJump = document.getElementById("padJump");
-  const padFwd = document.getElementById("padFwd");
-  const padPause = document.getElementById("padPause");
-
-  const HS_KEY = "valentine_game_high_v3";
-  let high = Number(localStorage.getItem(HS_KEY) || 0);
-  highEl.textContent = String(high);
-
-  const GROUND_Y = 236;
-  const GRAVITY = 0.92;
-  const JUMP_V = -14.8;
-
-  const BASE_SPEED_START = 4.8;
-  const SPEED_RAMP = 0.0048;      // faster ramp
-  const BOOST_MULT = 1.55;
-
-  const HEARTS_BONUS_EVERY = 15;
-  const HEARTS_BONUS_SCORE = 25;
-
-  let running = false;
-  let paused = false;
-  let forwardHeld = false;
-
-  let score = 0;
-  let hearts = 0;
-  let heartBonusBuckets = 0;
-  let baseSpeed = BASE_SPEED_START;
-
-  let spawnTimer = 0;
-  let farScroll = 0, nearScroll = 0, roadScroll = 0;
-
-  const player = { x:110, y:GROUND_Y, vy:0, onGround:true, w:28, h:44 };
-  let heartDrops = []; // {x,y}
-  let obstacles = [];  // {x,y,w,h,type}
-
-  function rand(min,max){ return Math.random()*(max-min)+min; }
-  function rectsOverlap(a,b){
-    return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
-  }
-  function circleRectOverlap(cx,cy,cr,r){
-    const closestX = Math.max(r.x, Math.min(cx, r.x + r.w));
-    const closestY = Math.max(r.y, Math.min(cy, r.y + r.h));
-    const dx = cx - closestX, dy = cy - closestY;
-    return (dx*dx + dy*dy) <= cr*cr;
-  }
-
-  function drawBackground(speed){
-    const g = ctx.createLinearGradient(0,0,0,canvas.height);
-    g.addColorStop(0, "#ffe2ea");
-    g.addColorStop(1, "#ffffff");
-    ctx.fillStyle = g;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    farScroll = (farScroll + speed*0.25) % 220;
-    ctx.fillStyle = "rgba(40,40,60,0.22)";
-    for (let x=-240; x<canvas.width+260; x+=220){
-      const bx = x - farScroll;
-      const h = 70 + ((x/220)%3)*18;
-      ctx.fillRect(bx, 165-h, 150, h);
-    }
-
-    nearScroll = (nearScroll + speed*0.6) % 170;
-    ctx.fillStyle = "rgba(20,20,35,0.36)";
-    for (let x=-220; x<canvas.width+240; x+=170){
-      const bx = x - nearScroll;
-      const h = 118 + ((x/170)%4)*18;
-      ctx.fillRect(bx, 260-h, 130, h);
-    }
-
-    const groundTop = GROUND_Y + 44;
-    ctx.fillStyle = "#2e8b57";
-    ctx.fillRect(0, groundTop, canvas.width, canvas.height-groundTop);
-
-    ctx.fillStyle = "rgba(0,0,0,0.12)";
-    ctx.fillRect(0, groundTop-3, canvas.width, 3);
-
-    roadScroll = (roadScroll + speed) % 80;
-  }
-
-  function drawPlayer(){
-    ctx.fillStyle = "rgba(0,0,0,0.08)";
-    ctx.fillRect(player.x-6, GROUND_Y+46, 40, 6);
-    ctx.font = "26px Arial";
-    ctx.fillText("👧🏽", player.x-8, player.y+18);
-  }
-
-  function drawHeart(h){
-    ctx.font = "22px Arial";
-    ctx.fillText("❤️", h.x-10, h.y+8);
-  }
-
-  function drawObstacle(o){
-    if (o.type === "barrel"){
-      ctx.fillStyle = "rgba(120,70,20,0.95)";
-      ctx.fillRect(o.x, o.y, o.w, o.h);
-      ctx.fillStyle = "rgba(0,0,0,0.18)";
-      ctx.fillRect(o.x, o.y+6, o.w, 3);
-      ctx.fillRect(o.x, o.y+o.h-10, o.w, 3);
-    } else {
-      ctx.fillStyle = "rgba(20,20,25,0.88)";
-      ctx.fillRect(o.x, o.y+10, o.w, o.h-10);
-      ctx.fillStyle = "rgba(255,255,255,0.18)";
-      ctx.fillRect(o.x+6, o.y+14, o.w-12, 10);
-      ctx.fillStyle = "rgba(0,0,0,0.85)";
-      ctx.fillRect(o.x+8, o.y+o.h-6, 10, 6);
-      ctx.fillRect(o.x+o.w-18, o.y+o.h-6, 10, 6);
-    }
-  }
-
-  function spawnStuff(){
-    spawnTimer -= 1;
-    if (spawnTimer > 0) return;
-    spawnTimer = Math.floor(rand(28, 62));
-
-    const roll = Math.random();
-    if (roll < 0.55){
-      const isCar = Math.random() < 0.28;
-      if (isCar){
-        obstacles.push({ type:"car", x:canvas.width+40, y:GROUND_Y+44-34, w:72, h:34 });
-      } else {
-        obstacles.push({ type:"barrel", x:canvas.width+40, y:GROUND_Y+44-26, w:20, h:26 });
-      }
-    } else {
-      heartDrops.push({ x:canvas.width+40, y:rand(GROUND_Y-90, GROUND_Y-34), r:12 });
-    }
-  }
-
-  function updateHUD(speed){
-    scoreEl.textContent = String(score);
-    heartsEl.textContent = String(hearts);
-    spdEl.textContent = (speed / BASE_SPEED_START).toFixed(1);
-    highEl.textContent = String(high);
-  }
-
-  function togglePause(){
-    if (!running) return;
-    paused = !paused;
-    pauseToggle.textContent = paused ? "▶️ Resume" : "⏸ Pause";
-    padPause.textContent = paused ? "▶️" : "⏸";
-  }
-
-  function jump(){
-    bootMusicOnce();
-    if (!running || paused) return;
-    if (player.onGround){
-      player.vy = JUMP_V;
-      player.onGround = false;
-    }
-  }
-  function setForward(v){ bootMusicOnce(); forwardHeld = v; }
-
-  padJump.addEventListener("click", jump);
-  padFwd.addEventListener("pointerdown", () => setForward(true));
-  padFwd.addEventListener("pointerup", () => setForward(false));
-  padFwd.addEventListener("pointercancel", () => setForward(false));
-  padFwd.addEventListener("pointerleave", () => setForward(false));
-  padPause.addEventListener("click", togglePause);
-  pauseToggle.addEventListener("click", togglePause);
-
-  window.addEventListener("keydown", (e) => {
-    if (currentServer !== "game") return;
-    if (e.code === "Space"){ e.preventDefault(); jump(); }
-    if (e.code === "ShiftLeft" || e.code === "ShiftRight"){ setForward(true); }
-    if (e.code === "KeyP"){ togglePause(); }
-  });
-  window.addEventListener("keyup", (e) => {
-    if (currentServer !== "game") return;
-    if (e.code === "ShiftLeft" || e.code === "ShiftRight"){ setForward(false); }
-  });
-
-  function resetRunState(){
-    score = 0; hearts = 0; heartBonusBuckets = 0;
-    baseSpeed = BASE_SPEED_START; forwardHeld = false; spawnTimer = 0;
-    heartDrops = []; obstacles = [];
-    player.y = GROUND_Y; player.vy = 0; player.onGround = true;
-    pauseToggle.textContent = "⏸ Pause"; padPause.textContent = "⏸";
-    updateHUD(BASE_SPEED_START);
-  }
-
-  function resetToStart(){
-    running = false; paused = false; forwardHeld = false;
-    hideGameOverOverlay();
-    resetRunState();
-    showStartOverlay();
-  }
-
-  async function startCountdownThenRun(){
-    if (running) return;
-    startBtn.disabled = true;
-    countdownEl.style.display = "block";
-    const steps = ["3","2","1","GO!"];
-    for (let i=0;i<steps.length;i++){
-      countdownEl.textContent = steps[i];
-      await new Promise(r => setTimeout(r, i===3 ? 450 : 600));
-    }
-    countdownEl.style.display = "none";
-    startOverlay.style.display = "none";
-    resetRunState();
-    running = true;
-    paused = false;
-  }
-  startBtn.addEventListener("click", startCountdownThenRun);
-
-  function gameOver(){
-    running = false; paused = false; forwardHeld = false;
-    if (score > high){ high = score; localStorage.setItem(HS_KEY, String(high)); }
-    showGameOverOverlay({score, hearts, high});
-  }
-
-  function loop(){
-    const speedMult = forwardHeld ? BOOST_MULT : 1.0;
-    const speed = baseSpeed * speedMult;
-
-    if (running && !paused){
-      baseSpeed += SPEED_RAMP;
-      score += 1;
-
-      player.vy += GRAVITY;
-      player.y += player.vy;
-      if (player.y >= GROUND_Y){
-        player.y = GROUND_Y; player.vy = 0; player.onGround = true;
-      }
-
-      spawnStuff();
-
-      for (const h of heartDrops) h.x -= speed;
-      for (const o of obstacles) o.x -= speed;
-      heartDrops = heartDrops.filter(h => h.x > -60);
-      obstacles = obstacles.filter(o => o.x > -140);
-
-      const pr = { x: player.x+5, y: player.y+6, w: player.w-10, h: player.h-12 };
-
-      for (let i=heartDrops.length-1; i>=0; i--){
-        const h = heartDrops[i];
-        if (circleRectOverlap(h.x, h.y, 12, pr)){
-          heartDrops.splice(i,1);
-          hearts += 1;
-          const buckets = Math.floor(hearts / HEARTS_BONUS_EVERY);
-          if (buckets > heartBonusBuckets){
-            heartBonusBuckets = buckets;
-            score += HEARTS_BONUS_SCORE;
-          }
-          score += 2;
-        }
-      }
-
-      for (const o of obstacles){
-        const of = { x:o.x+3, y:o.y+3, w:Math.max(6,o.w-6), h:Math.max(6,o.h-6) };
-        if (rectsOverlap(pr, of)){ gameOver(); break; }
-      }
-
-      updateHUD(speed);
-    }
-
-    drawBackground((running && !paused) ? speed : 0);
-    for (const h of heartDrops) drawHeart(h);
-    for (const o of obstacles) drawObstacle(o);
-    drawPlayer();
-
-    requestAnimationFrame(loop);
-  }
-  loop();
-
-  GAME = { initialized:true, resetToStart };
-}
-
-/* ====== BOOT ====== */
-setActiveServersUI();
+/* boot */
+setActiveServerUI();
 setActiveChanUI();
 render();
-<script>
-
-const SITE_VERSION = "DISCORD REVAMP — IMAGE FIX BUILD";
-
-/* ===== RAW BASE (forces images to load from repo directly) ===== */
-const RAW_BASE = "https://raw.githubusercontent.com/manassehbonaparte-spec/https-manasseh.github.io-our-love-story/main/";
-
-/* ===== IMAGE BASE NAMES ONLY (NO EXTENSIONS) ===== */
-const IMAGES = {
-  y22: ["22_01","22_02","22_03","22_04","22_05","22_06"],
-  y23: ["23_01","23_02","23_03","23_04","23_05","23_06"],
-  y24: ["24_01","24_02","24_03","24_04","24_05","24_06","24_07","24_08"],
-  y25: ["25_01","25_02","25_03","25_04","25_05","25_06","25_07","25_08","25_09"],
-  y26: [
-    "456C3DFA-6694-47CD-9340-C41EDA179452",
-    "9779781B-6837-46AD-8A78-09F7AD151B48",
-    "EE0C9E1C-9B92-4CEC-91BF-210B3D5DB6D5"
-  ]
-};
-
-/* ===== EXTENSIONS TO TRY ===== */
-const EXT_TRIES = [".JPEG",".JPG",".PNG",".jpeg",".jpg",".png",".Jpeg",".JPeg",".Png",".jPEG",".jPg",".pNg"];
-
-/* ===== SERVER NAV ===== */
-let currentServer = "y22";
-let currentChan = "slideshow";
-
-const chatBody = document.getElementById("chatBody");
-const serverTitle = document.getElementById("serverTitle");
-const channelTitle = document.getElementById("channelTitle");
-
-function serverLabel(id){
-  if(id === "game") return "Game";
-  return "20" + id.slice(1);
-}
-
-function setHeader(){
-  serverTitle.textContent = serverLabel(currentServer);
-  channelTitle.textContent = "#slideshow";
-}
-
-document.querySelectorAll(".serverDot").forEach(dot=>{
-  dot.addEventListener("click",()=>{
-    currentServer = dot.dataset.server;
-    render();
-  });
-});
-
-/* ===== SLIDESHOW ===== */
-function resolveImage(base){
-  return new Promise((resolve)=>{
-    let i=0;
-    function tryNext(){
-      if(i>=EXT_TRIES.length) return resolve(null);
-      const url = RAW_BASE + base + EXT_TRIES[i];
-      const img = new Image();
-      img.onload = ()=> resolve(url);
-      img.onerror = ()=>{ i++; tryNext(); };
-      img.src = url;
-    }
-    tryNext();
-  });
-}
-
-async function renderSlideshow(baseNames){
-  const wrap = document.createElement("div");
-  wrap.className="slideWrap";
-
-  const valid = [];
-  for(const base of baseNames){
-    const url = await resolveImage(base);
-    if(url) valid.push(url);
-  }
-
-  if(valid.length===0){
-    wrap.innerHTML="<div class='placeholder'>Images not found.<br>Check filenames in repo.</div>";
-    return wrap;
-  }
-
-  const imgs = valid.map((url,i)=>{
-    const im = document.createElement("img");
-    im.src=url;
-    if(i===0) im.classList.add("active");
-    wrap.appendChild(im);
-    return im;
-  });
-
-  let index=0;
-  function next(){
-    imgs[index].classList.remove("active");
-    index=(index+1)%imgs.length;
-    imgs[index].classList.add("active");
-  }
-
-  let timer=setInterval(next,3000);
-  wrap.addEventListener("click",()=>{
-    next();
-    clearInterval(timer);
-    timer=setInterval(next,3000);
-  });
-
-  return wrap;
-}
-
-/* ===== RENDER ===== */
-async function render(){
-  chatBody.innerHTML="";
-  setHeader();
-
-  const versionCard=document.createElement("div");
-  versionCard.className="card";
-  versionCard.innerHTML="<strong>"+SITE_VERSION+"</strong>";
-  chatBody.appendChild(versionCard);
-
-  if(currentServer==="game"){
-    chatBody.appendChild(document.createTextNode("Game section still intact."));
-    return;
-  }
-
-  const slideCard=document.createElement("div");
-  slideCard.className="card";
-  slideCard.innerHTML="<strong>"+serverLabel(currentServer)+" Slideshow</strong><br><br>";
-  slideCard.appendChild(await renderSlideshow(IMAGES[currentServer]));
-  chatBody.appendChild(slideCard);
-}
-
-render();
-
 </script>
-
 </body>
 </html>
+
+
 
 
 
