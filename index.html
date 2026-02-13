@@ -1,711 +1,1138 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Our Love Story 💕</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Discord 💬💘</title>
   <style>
+    :root{
+      /* Discord-ish dark palette */
+      --bg: #313338;
+      --serverbar: #1e1f22;
+      --sidebar: #2b2d31;
+      --chat: #313338;
+      --panel: #232428;
+      --text: #dbdee1;
+      --muted: #b5bac1;
+      --accent: #5865f2;
+      --green: #23a55a;
+      --danger: #f23f42;
+      --outline: rgba(255,255,255,0.08);
+      --shadow: rgba(0,0,0,0.35);
+    }
+
+    *{box-sizing:border-box}
     body{
       margin:0;
-      font-family:Arial, sans-serif;
-      background:linear-gradient(to right,#ff758c,#ff7eb3);
-      color:white;
-      text-align:center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
     }
-    h1{margin:18px 10px 8px;}
-    h2{margin:16px 10px 8px;}
 
-    .countdown{margin:10px 12px;font-size:16px;line-height:1.45;}
-
-    .slideshow{
-      position:relative;
-      width:250px;
-      height:350px;
-      margin:16px auto 10px;
-    }
-    .slideshow img{
-      position:absolute;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      border-radius:20px;
-      opacity:0;
-      transition:opacity 1s;
-      box-shadow:0 12px 28px rgba(0,0,0,0.25);
-    }
-    .slideshow img.active{opacity:1;}
-
-    button{
-      padding:12px 18px;
-      font-size:16px;
-      margin:8px;
-      border:none;
-      border-radius:12px;
-      cursor:pointer;
-      box-shadow:0 10px 22px rgba(0,0,0,0.18);
-    }
-    #yesBtn{background:#ff4d6d;color:white;}
-    #noBtn{background:white;color:#111;}
-    #musicBtn{background:rgba(0,0,0,0.35);color:white;}
-
-    #loveOverlay{
-      position:fixed;
-      inset:0;
-      background:#ff4d6d;
+    /* App layout */
+    .app{
       display:flex;
-      justify-content:center;
+      height:100vh;
+      width:100vw;
+    }
+
+    /* Server bar */
+    .servers{
+      width:72px;
+      background: var(--serverbar);
+      padding: 10px 0;
+      display:flex;
+      flex-direction:column;
       align-items:center;
-      font-size:6vw;
-      font-weight:900;
-      z-index:50;
-      opacity:0;
-      transition:opacity 1s;
-      pointer-events:none;
-    }
-
-    /* Game */
-    .gameWrap{
-      width:min(96vw, 920px);
-      margin:14px auto 18px;
-      position:relative;
-    }
-    canvas#game{
-      width:100%;
-      aspect-ratio:3/1;
-      background:white;
-      border-radius:16px;
-      display:block;
-      box-shadow:0 14px 34px rgba(0,0,0,0.25);
-      border:2px solid rgba(0,0,0,0.08);
-    }
-
-    .hud{
-      display:flex;
-      justify-content:center;
       gap:10px;
-      flex-wrap:wrap;
-      margin:10px 8px 12px;
-      font-size:14px;
+      overflow-y:auto;
+    }
+
+    .serverDot{
+      width:48px;
+      height:48px;
+      border-radius: 24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#313338;
+      color: var(--text);
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor:pointer;
+      transition: border-radius .15s ease, background .15s ease, transform .1s ease;
+      position: relative;
+      user-select:none;
+    }
+    .serverDot:hover{
+      border-radius: 16px;
+      background:#3a3c43;
+      transform: translateY(-1px);
+    }
+    .serverDot.active{
+      border-radius: 16px;
+      background: var(--accent);
+      border-color: rgba(255,255,255,0.12);
     }
     .pill{
-      background:rgba(0,0,0,0.25);
-      padding:8px 12px;
+      position:absolute;
+      left:-10px;
+      width:6px;
+      height:18px;
       border-radius:999px;
-      backdrop-filter: blur(6px);
+      background: white;
+      opacity:0;
+      transition: opacity .15s ease, height .15s ease;
+    }
+    .serverDot.active .pill{opacity:1;height:30px}
+    .divider{
+      width:32px;height:2px;background:rgba(255,255,255,0.08);
+      margin:4px 0;
+      border-radius: 999px;
     }
 
-    /* On-canvas controls */
-    .pad{ position:absolute; inset:0; pointer-events:none; }
+    /* Channels sidebar */
+    .sidebar{
+      width: 260px;
+      background: var(--sidebar);
+      display:flex;
+      flex-direction:column;
+      border-right: 1px solid var(--outline);
+    }
+
+    .sidebarTop{
+      height: 48px;
+      display:flex;
+      align-items:center;
+      padding: 0 12px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--outline);
+      gap:10px;
+    }
+    .serverTitle{
+      font-weight: 800;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      flex:1;
+    }
+
+    .sideBtn{
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 6px 10px;
+      cursor:pointer;
+      font-weight: 900;
+    }
+    .sideBtn:hover{border-color: rgba(255,255,255,0.18)}
+
+    .channels{
+      padding: 10px 8px;
+      overflow-y:auto;
+    }
+    .cat{
+      margin: 10px 8px 6px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .chan{
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin: 2px 6px;
+      cursor:pointer;
+      color: var(--muted);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+    }
+    .chan:hover{background: rgba(255,255,255,0.06); color: var(--text)}
+    .chan.active{background: rgba(255,255,255,0.10); color: var(--text)}
+    .hash{opacity:.85}
+
+    /* Chat panel */
+    .chat{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      background: var(--chat);
+      min-width: 0;
+    }
+
+    .chatTop{
+      height:48px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 0 12px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--outline);
+    }
+    .channelTitle{
+      font-weight: 900;
+    }
+    .subtle{
+      color: var(--muted);
+      font-size: 12px;
+      margin-left: 6px;
+    }
+
+    .chatBody{
+      flex:1;
+      overflow-y:auto;
+      padding: 14px 14px 100px;
+    }
+
+    .card{
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      box-shadow: 0 18px 40px var(--shadow);
+      padding: 14px;
+      margin: 10px 0;
+    }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-start;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--text);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .btn{
+      border:none;
+      cursor:pointer;
+      font-weight: 900;
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--text);
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .btn:hover{background: rgba(255,255,255,0.14)}
+    .btnAccent{background: var(--accent); border-color: rgba(255,255,255,0.14)}
+    .btnAccent:hover{filter: brightness(1.05)}
+    .btnDanger{background: rgba(242,63,66,0.18); border-color: rgba(242,63,66,0.35)}
+    .btnDanger:hover{background: rgba(242,63,66,0.26)}
+    .btnGreen{background: rgba(35,165,90,0.18); border-color: rgba(35,165,90,0.35)}
+    .btnGreen:hover{background: rgba(35,165,90,0.26)}
+
+    /* Slideshow area */
+    .slideWrap{
+      position: relative;
+      width: min(520px, 100%);
+      aspect-ratio: 3 / 4;
+      border-radius: 14px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+    }
+    .slideWrap img{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      opacity:0;
+      transition: opacity 0.8s ease;
+    }
+    .slideWrap img.active{opacity:1}
+    .placeholder{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 14px;
+      color: var(--muted);
+      font-weight: 800;
+      text-align:center;
+    }
+
+    /* Game area */
+    .gameWrap{
+      width: min(920px, 100%);
+      margin-top: 10px;
+      position: relative;
+    }
+    #game{
+      width:100%;
+      aspect-ratio: 3 / 1;
+      border-radius: 14px;
+      background: #ffffff;
+      display:block;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .gamePad{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+    }
     .padBtn{
       pointer-events:auto;
       position:absolute;
-      padding:12px 14px;
-      border-radius:14px;
-      font-weight:800;
       border:none;
-      box-shadow:0 10px 22px rgba(0,0,0,0.22);
-      opacity:0.92;
+      font-weight: 1000;
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.30);
+      opacity: 0.92;
     }
-    .padJump{left:12px; bottom:12px; background:#ff4d6d; color:white;}
-    .padFwd{right:12px; bottom:12px; background:white; color:#111;}
-    .padPause{top:12px; right:12px; background:rgba(0,0,0,0.45); color:white;}
-
-    .hint{opacity:0.9;font-size:13px;margin:6px 12px 22px;}
+    .padJump{left:10px; bottom:10px; background: var(--accent); color: white;}
+    .padFwd{right:10px; bottom:10px; background: #ffffff; color: #111;}
+    .padPause{top:10px; right:10px; background: rgba(0,0,0,0.45); color: white;}
 
     /* Game over overlay */
     .overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.62);
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
       display:none;
-      justify-content:center;
       align-items:center;
-      z-index:60;
-      padding:16px;
+      justify-content:center;
+      padding: 16px;
+      z-index: 999;
     }
-    .card{
-      width:min(540px, 92vw);
-      background:rgba(255,255,255,0.12);
-      border:1px solid rgba(255,255,255,0.25);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 18px 40px rgba(0,0,0,0.35);
-      backdrop-filter: blur(8px);
+    .overlayCard{
+      width: min(540px, 92vw);
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.50);
+      backdrop-filter: blur(10px);
     }
-    .row{
+    .miniRow{
       display:flex;
-      gap:14px;
-      justify-content:center;
-      align-items:center;
+      gap: 14px;
       flex-wrap:wrap;
-      margin:10px 0 6px;
+      justify-content:center;
+      margin-top: 10px;
     }
-    .pixelCard{
-      background:rgba(255,255,255,0.14);
-      border:1px solid rgba(255,255,255,0.22);
-      border-radius:14px;
-      padding:10px;
-      width:190px;
+    .miniBox{
+      width: 200px;
+      background: rgba(0,0,0,0.20);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 10px;
+      text-align:center;
     }
     .miniCanvas{
-      width:140px;
-      height:140px;
+      width: 140px;
+      height: 140px;
       display:block;
-      margin:0 auto 6px;
-      background:rgba(255,255,255,0.9);
-      border-radius:12px;
+      margin: 0 auto 6px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 12px;
     }
-    .replay{
-      width:100%;
-      background:#ff4d6d;
-      color:white;
-      font-size:18px;
-      padding:14px 16px;
-      border-radius:14px;
-      margin-top:10px;
+
+    /* Mobile tweaks */
+    @media (max-width: 860px){
+      .sidebar{display:none;}
     }
   </style>
 </head>
+
 <body>
+  <div class="app">
+    <!-- Server bar -->
+    <div class="servers" id="servers">
+      <div class="serverDot active" data-server="y22"><span class="pill"></span>22</div>
+      <div class="serverDot" data-server="y23"><span class="pill"></span>23</div>
+      <div class="serverDot" data-server="y24"><span class="pill"></span>24</div>
+      <div class="serverDot" data-server="y25"><span class="pill"></span>25</div>
+      <div class="serverDot" data-server="y26"><span class="pill"></span>26</div>
+      <div class="divider"></div>
+      <div class="serverDot" data-server="game"><span class="pill"></span>🎮</div>
+    </div>
 
-  <div id="loveOverlay">I LOVE YOU ❤️</div>
+    <!-- Channels sidebar -->
+    <div class="sidebar">
+      <div class="sidebarTop">
+        <div class="serverTitle" id="serverTitle">2022</div>
+        <button class="sideBtn" id="musicBtn" title="Toggle music">🔊</button>
+      </div>
+      <div class="channels">
+        <div class="cat">Memories</div>
+        <div class="chan active" data-chan="slideshow"><span class="hash">#</span>slideshow</div>
+        <div class="chan" data-chan="notes"><span class="hash">#</span>notes</div>
+        <div class="cat">Special</div>
+        <div class="chan" data-chan="valentine"><span class="hash">#</span>valentine</div>
+        <div class="chan" data-chan="controls"><span class="hash">#</span>controls</div>
+      </div>
+    </div>
 
-  <h1>Will You Be My Valentine? 💘</h1>
+    <!-- Chat -->
+    <div class="chat">
+      <div class="chatTop">
+        <div class="channelTitle" id="channelTitle">#valentine</div>
+        <div class="subtle" id="channelHint">Timers live in 22 because that’s when you started.</div>
+      </div>
 
-  <div class="countdown">
-    ❤️ Countdown to February 25:
-    <div id="valentineCountdown"></div>
-    💍 Countdown to Our 5-Year Anniversary (Feb 25, 2027):
-    <div id="anniversaryCountdown"></div>
-  </div>
-
-  <div class="slideshow">
-    <img src="456C3DFA-6694-47CD-9340-C41EDA179452.jpeg" class="active">
-    <img src="9779781B-6837-46AD-8A78-09F7AD151B48.jpeg">
-    <img src="EE0C9E1C-9B92-4CEC-91BF-210B3D5DB6D5.jpeg">
-  </div>
-
-  <div>
-    <button id="yesBtn" onclick="yesClicked()">Yes 💕</button>
-    <button id="noBtn" onclick="noClicked()">No 🙄</button>
-    <button id="musicBtn" onclick="toggleMusic()">🔊 Music: On</button>
-  </div>
-
-  <audio id="music" loop>
-    <source src="song.mp3" type="audio/mpeg">
-  </audio>
-
-  <h2>❤️ Heart Run: City Edition 🌆</h2>
-
-  <div class="hud">
-    <div class="pill">Score: <span id="score">0</span></div>
-    <div class="pill">High: <span id="high">0</span></div>
-    <div class="pill">Speed: <span id="spd">1.0</span>x</div>
-    <div class="pill">Space=Jump • Shift=Forward • P=Pause</div>
-  </div>
-
-  <div class="gameWrap">
-    <canvas id="game" width="900" height="300"></canvas>
-    <div class="pad">
-      <button class="padBtn padPause" id="pauseBtn">⏸ Pause</button>
-      <button class="padBtn padJump" id="jumpBtn">⬆️ Jump</button>
-      <button class="padBtn padFwd" id="fwdBtn">➡️ Forward</button>
+      <div class="chatBody" id="chatBody"></div>
     </div>
   </div>
 
-  <div class="hint">
-    Tip: collect ❤️ for bonus points. Obstacles have smaller hitboxes so it’s fair.
-  </div>
+  <!-- Music -->
+  <audio id="music" loop>
+    <source src="song.mp3" type="audio/mpeg" />
+  </audio>
 
+  <!-- Game Over Overlay -->
   <div class="overlay" id="gameOver">
-    <div class="card">
-      <h2>Game Over 💔</h2>
-      <p style="margin:6px 0 10px;">
-        Your Score: <b id="finalScore">0</b> • High Score: <b id="finalHigh">0</b>
-      </p>
+    <div class="overlayCard">
+      <h2 style="margin:4px 0 8px;">Game Over 💔</h2>
+      <div class="row" style="justify-content:center;">
+        <div class="badge">Score: <span id="finalScore">0</span></div>
+        <div class="badge">High: <span id="finalHigh">0</span></div>
+      </div>
 
-      <div class="row">
-        <div class="pixelCard">
+      <div class="miniRow">
+        <div class="miniBox">
           <canvas class="miniCanvas" id="miniHer" width="140" height="140"></canvas>
-          <div><b>Her</b> 💕</div>
+          <div style="font-weight:900;">Her 💕</div>
         </div>
-        <div class="pixelCard">
+        <div class="miniBox">
           <canvas class="miniCanvas" id="miniYou" width="140" height="140"></canvas>
-          <div><b>You</b> 🖤</div>
+          <div style="font-weight:900;">You 🖤</div>
         </div>
       </div>
 
-      <p style="margin:8px 0 0; opacity:0.95;">“Okay… run it back 😤❤️”</p>
-      <button class="replay" onclick="restart()">Replay ❤️</button>
+      <button class="btn btnAccent" style="width:100%; margin-top:12px;" id="replayBtn">Replay ❤️</button>
+      <div style="margin-top:10px; color:var(--muted); font-weight:800; font-size:13px; text-align:center;">
+        Controls: Space=Jump • Shift=Forward • P=Pause
+      </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+/* =========================================================
+   IMAGES (you can add later)
+   - you asked to put your 3 existing photos into 25
+========================================================= */
+const IMAGES = {
+  y22: [],
+  y23: [],
+  y24: [],
+  y25: [
+    "456C3DFA-6694-47CD-9340-C41EDA179452.jpeg",
+    "9779781B-6837-46AD-8A78-09F7AD151B48.jpeg",
+    "EE0C9E1C-9B92-4CEC-91BF-210B3D5DB6D5.jpeg"
+  ],
+  y26: [],
+  game: []
+};
 
-  <script>
-    /* ---------------------------
-      ORIGINAL SITE
-    --------------------------- */
-    function getCountdown(targetDate){
-      const now = Date.now();
-      const d = targetDate - now;
-      if (d <= 0) return "It’s today ❤️";
-      const days = Math.floor(d/(1000*60*60*24));
-      const hours = Math.floor((d/(1000*60*60))%24);
-      const mins = Math.floor((d/(1000*60))%60);
-      const secs = Math.floor((d/1000)%60);
-      return `${days}d ${hours}h ${mins}m ${secs}s`;
-    }
+// Timers only on 2022 page
+const TARGET_THIS_YEAR = () => new Date(`February 25, ${new Date().getFullYear()} 00:00:00`).getTime();
+const TARGET_2027 = new Date("February 25, 2027 00:00:00").getTime();
 
-    function updateCountdowns(){
-      const year = new Date().getFullYear();
-      const feb25ThisYear = new Date(`February 25, ${year} 00:00:00`).getTime();
-      const feb252027 = new Date("February 25, 2027 00:00:00").getTime();
-      document.getElementById("valentineCountdown").textContent = getCountdown(feb25ThisYear);
-      document.getElementById("anniversaryCountdown").textContent = getCountdown(feb252027);
-    }
-    setInterval(updateCountdowns, 1000); updateCountdowns();
+/* =========================================================
+   DISCORD-LIKE NAV STATE
+========================================================= */
+let currentServer = "y22";
+let currentChan = "valentine";
 
-    const slides = document.querySelectorAll(".slideshow img");
-    let si = 0;
+/* =========================================================
+   MUSIC (sidebar + 22 page play/pause)
+========================================================= */
+const music = document.getElementById("music");
+const musicBtn = document.getElementById("musicBtn");
+let musicOn = true;
+let musicBooted = false;
+
+function syncMusicIcon(){
+  musicBtn.textContent = musicOn ? "🔊" : "🔇";
+}
+
+async function bootMusicOnce(){
+  if (musicBooted) return;
+  musicBooted = true;
+  if (!musicOn) return;
+  try { await music.play(); } catch {}
+}
+
+musicBtn.addEventListener("click", async () => {
+  musicOn = !musicOn;
+  if (!musicOn){
+    music.pause();
+    music.currentTime = 0;
+  } else {
+    try { await music.play(); } catch {}
+  }
+  syncMusicIcon();
+});
+syncMusicIcon();
+
+// allow audio after first interaction
+window.addEventListener("pointerdown", bootMusicOnce, { once: true });
+
+/* =========================================================
+   UI HELPERS
+========================================================= */
+const chatBody = document.getElementById("chatBody");
+const serverTitle = document.getElementById("serverTitle");
+const channelTitle = document.getElementById("channelTitle");
+const channelHint = document.getElementById("channelHint");
+
+function serverLabel(id){
+  if (id === "game") return "Game";
+  return "20" + id.slice(1); // y22 -> 2022
+}
+
+function chanLabel(id){ return "#" + id; }
+
+function setHeader(){
+  serverTitle.textContent = serverLabel(currentServer);
+  channelTitle.textContent = chanLabel(currentChan);
+
+  if (currentServer === "y22" && currentChan === "valentine"){
+    channelHint.textContent = "Both timers live here because that’s when it started.";
+  } else if (currentServer === "game"){
+    channelHint.textContent = "Runner game lives here. Music toggle is on the sidebar + in 22.";
+  } else {
+    channelHint.textContent = "Add more photos later by editing the IMAGES arrays.";
+  }
+}
+
+function countdownText(targetMs){
+  const now = Date.now();
+  const d = targetMs - now;
+  if (d <= 0) return "It’s today ❤️";
+  const days = Math.floor(d/(1000*60*60*24));
+  const hours = Math.floor((d/(1000*60*60))%24);
+  const mins = Math.floor((d/(1000*60))%60);
+  const secs = Math.floor((d/1000)%60);
+  return `${days}d ${hours}h ${mins}m ${secs}s`;
+}
+
+function makeCard(html){
+  const div = document.createElement("div");
+  div.className = "card";
+  div.innerHTML = html;
+  return div;
+}
+
+function renderSlideshow(images){
+  const wrap = document.createElement("div");
+  wrap.className = "slideWrap";
+
+  if (!images || images.length === 0){
+    const ph = document.createElement("div");
+    ph.className = "placeholder";
+    ph.innerHTML = `
+      No images added yet.<br/><br/>
+      Upload photos to your repo, then add their filenames into:<br/><br/>
+      <span style="color:var(--text)">IMAGES.${currentServer} = ["file1.jpg","file2.jpg"]</span>
+    `;
+    wrap.appendChild(ph);
+    return {wrap, start: ()=>{}};
+  }
+
+  const imgs = images.map((src, idx) => {
+    const im = document.createElement("img");
+    im.src = src;
+    if (idx === 0) im.classList.add("active");
+    wrap.appendChild(im);
+    return im;
+  });
+
+  let i = 0;
+  const start = () => {
     setInterval(() => {
-      slides[si].classList.remove("active");
-      si = (si + 1) % slides.length;
-      slides[si].classList.add("active");
+      imgs[i].classList.remove("active");
+      i = (i + 1) % imgs.length;
+      imgs[i].classList.add("active");
     }, 3000);
+  };
 
-    const music = document.getElementById("music");
-    const musicBtn = document.getElementById("musicBtn");
-    let musicOn = true;
-    let musicBooted = false;
+  return {wrap, start};
+}
 
-    function syncMusicUI(){
-      musicBtn.textContent = musicOn ? "🔊 Music: On" : "🔇 Music: Off";
-    }
-    async function bootMusicOnce(){
-      if (musicBooted) return;
-      musicBooted = true;
-      if (!musicOn) return;
-      try { await music.play(); } catch {}
-    }
-    async function toggleMusic(){
-      musicOn = !musicOn;
-      if (!musicOn){
-        music.pause();
-        music.currentTime = 0;
-      } else {
-        try { await music.play(); } catch {}
-      }
-      syncMusicUI();
-    }
-    syncMusicUI();
+/* =========================================================
+   RENDER CONTENT
+========================================================= */
+function render(){
+  chatBody.innerHTML = "";
+  setHeader();
 
-    function yesClicked(){
-      bootMusicOnce();
-      const overlay = document.getElementById("loveOverlay");
-      overlay.style.opacity = 1;
+  if (currentServer === "game"){
+    chatBody.appendChild(makeCard(`
+      <div style="font-weight:1000; font-size:18px;">🎮 Heart Run (City Edition)</div>
+      <div style="margin-top:8px; color:var(--muted); font-weight:800;">
+        Space = Jump • Shift = Forward • P = Pause • Mobile buttons are on the canvas
+      </div>
+    `));
 
-      const end = Date.now() + 5000;
-      (function frame(){
-        confetti({ particleCount: 6, spread: 70, origin: { y: 0.6 }});
-        if (Date.now() < end) requestAnimationFrame(frame);
-      })();
+    const gameCard = document.createElement("div");
+    gameCard.className = "card";
+    gameCard.innerHTML = `
+      <div class="row" style="justify-content:space-between;">
+        <div class="badge">Score: <span id="score">0</span></div>
+        <div class="badge">High: <span id="high">0</span></div>
+        <div class="badge">Speed: <span id="spd">1.0</span>x</div>
+        <button class="btn btnGreen" id="pauseToggle">⏸ Pause</button>
+      </div>
 
-      setTimeout(() => overlay.style.opacity = 0, 2800);
-    }
-    function noClicked(){
+      <div class="gameWrap">
+        <canvas id="game" width="900" height="300"></canvas>
+        <div class="gamePad">
+          <button class="padBtn padPause" id="padPause">⏸</button>
+          <button class="padBtn padJump" id="padJump">⬆️ Jump</button>
+          <button class="padBtn padFwd" id="padFwd">➡️ Forward</button>
+        </div>
+      </div>
+    `;
+    chatBody.appendChild(gameCard);
+
+    initGame();
+
+    const {wrap, start} = renderSlideshow(IMAGES.game);
+    const picsCard = makeCard(`<div style="font-weight:1000; margin-bottom:10px;">Optional game pics</div>`);
+    picsCard.appendChild(wrap);
+    chatBody.appendChild(picsCard);
+    start();
+    return;
+  }
+
+  // 22 valentine channel: timers + yes/no + PLAY/PAUSE MUSIC BUTTON
+  if (currentServer === "y22" && currentChan === "valentine"){
+    const c = makeCard(`
+      <div style="font-weight:1000; font-size:18px;">Will you be my Valentine? 💘</div>
+
+      <div class="row" style="margin-top:10px;">
+        <span class="badge">❤️ Feb 25: <span id="cd1"></span></span>
+        <span class="badge">💍 Feb 25, 2027: <span id="cd2"></span></span>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="btn btnAccent" id="yesBtn">Yes 💕</button>
+        <button class="btn btnDanger" id="noBtn">No 🙄</button>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="btn btnGreen" id="musicToggle22">▶ Play Music</button>
+      </div>
+
+      <div style="margin-top:10px; color:var(--muted); font-weight:800;">
+        Music also controllable from sidebar.
+      </div>
+    `);
+    chatBody.appendChild(c);
+
+    const update = () => {
+      const cd1 = document.getElementById("cd1");
+      const cd2 = document.getElementById("cd2");
+      if (cd1) cd1.textContent = countdownText(TARGET_THIS_YEAR());
+      if (cd2) cd2.textContent = countdownText(TARGET_2027);
+    };
+    update();
+    setInterval(update, 1000);
+
+    document.getElementById("yesBtn").addEventListener("click", async () => {
+      await bootMusicOnce();
+      alert("I LOVE YOU ❤️");
+    });
+
+    document.getElementById("noBtn").addEventListener("click", () => {
       alert("Nice try 😤❤️");
-    }
-    window.addEventListener("pointerdown", bootMusicOnce, { once:true });
-
-    /* ---------------------------
-      GAME: City Edition
-    --------------------------- */
-    const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
-
-    const scoreEl = document.getElementById("score");
-    const highEl = document.getElementById("high");
-    const spdEl = document.getElementById("spd");
-
-    const HS_KEY = "valentine_city_run_high_v1";
-    let high = Number(localStorage.getItem(HS_KEY) || 0);
-    highEl.textContent = String(high);
-
-    const GROUND = 246;
-    const GRAVITY = 0.85;
-
-    let running = true;
-    let paused = false;
-
-    let score = 0;
-    let baseSpeed = 4.3;
-    let speedRamp = 0.0019;
-
-    let forwardHeld = false;
-
-    const player = { x: 110, y: GROUND, vy: 0, onGround: true, w: 28, h: 44 };
-
-    let hearts = [];
-    let obstacles = [];
-    let spawnTimer = 0;
-
-    let skyScroll = 0;
-    let nearScroll = 0;
-    let farScroll = 0;
-
-    const jumpBtn = document.getElementById("jumpBtn");
-    const fwdBtn = document.getElementById("fwdBtn");
-    const pauseBtn = document.getElementById("pauseBtn");
-
-    function togglePause(){
-      if (!running) return;
-      paused = !paused;
-      pauseBtn.textContent = paused ? "▶️ Resume" : "⏸ Pause";
-    }
-
-    function jump(){
-      bootMusicOnce();
-      if (!running || paused) return;
-      if (player.onGround){
-        player.vy = -14.2;
-        player.onGround = false;
-      }
-    }
-    function setForward(v){
-      bootMusicOnce();
-      forwardHeld = v;
-    }
-
-    jumpBtn.addEventListener("click", jump);
-    fwdBtn.addEventListener("pointerdown", () => setForward(true));
-    fwdBtn.addEventListener("pointerup", () => setForward(false));
-    fwdBtn.addEventListener("pointercancel", () => setForward(false));
-    fwdBtn.addEventListener("pointerleave", () => setForward(false));
-    pauseBtn.addEventListener("click", togglePause);
-
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "Space"){ e.preventDefault(); jump(); }
-      if (e.code === "ShiftLeft" || e.code === "ShiftRight"){ setForward(true); }
-      if (e.code === "KeyP"){ togglePause(); }
-      if (!running && (e.code === "Enter" || e.code === "Space")){ e.preventDefault(); restart(); }
-    });
-    window.addEventListener("keyup", (e) => {
-      if (e.code === "ShiftLeft" || e.code === "ShiftRight"){ setForward(false); }
     });
 
-    function rand(min,max){ return Math.random()*(max-min)+min; }
-
-    function rectsOverlap(a,b){
-      return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    const musicBtn22 = document.getElementById("musicToggle22");
+    function syncButton(){
+      musicBtn22.textContent = music.paused ? "▶ Play Music" : "⏸ Pause Music";
     }
-
-    function circleRectOverlap(cx,cy,cr,r){
-      const closestX = Math.max(r.x, Math.min(cx, r.x + r.w));
-      const closestY = Math.max(r.y, Math.min(cy, r.y + r.h));
-      const dx = cx - closestX;
-      const dy = cy - closestY;
-      return (dx*dx + dy*dy) <= cr*cr;
-    }
-
-    function drawCityBackground(speed){
-      const g = ctx.createLinearGradient(0,0,0,canvas.height);
-      g.addColorStop(0, "#ffe2ea");
-      g.addColorStop(1, "#ffffff");
-      ctx.fillStyle = g;
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-
-      // lights
-      ctx.fillStyle = "rgba(255,80,120,0.22)";
-      for (let i=0;i<30;i++){
-        const x = (i*37 + skyScroll*0.35) % (canvas.width+60) - 30;
-        const y = 20 + (i%6)*18;
-        ctx.fillRect(x, y, 2, 2);
-      }
-
-      // far skyline
-      farScroll = (farScroll + speed*0.25) % 200;
-      ctx.fillStyle = "rgba(40,40,60,0.20)";
-      for (let x=-220; x<canvas.width+220; x+=200){
-        const bx = x - farScroll;
-        const h = 70 + ((x/200)%3)*18;
-        ctx.fillRect(bx, 165-h, 140, h);
-        ctx.fillStyle = "rgba(255,90,130,0.15)";
-        for (let wx=0; wx<120; wx+=18){
-          for (let wy=0; wy<h-12; wy+=18){
-            ctx.fillRect(bx+10+wx, 165-h+10+wy, 6, 6);
-          }
-        }
-        ctx.fillStyle = "rgba(40,40,60,0.20)";
-      }
-
-      // near buildings
-      nearScroll = (nearScroll + speed*0.6) % 160;
-      ctx.fillStyle = "rgba(20,20,35,0.35)";
-      for (let x=-200; x<canvas.width+200; x+=160){
-        const bx = x - nearScroll;
-        const h = 110 + ((x/160)%4)*18;
-        ctx.fillRect(bx, 260-h, 120, h);
-        ctx.fillStyle = "rgba(255,255,255,0.14)";
-        for (let wx=0; wx<100; wx+=16){
-          for (let wy=0; wy<h-12; wy+=16){
-            ctx.fillRect(bx+10+wx, 260-h+10+wy, 6, 6);
-          }
-        }
-        ctx.fillStyle = "rgba(20,20,35,0.35)";
-      }
-
-      ctx.fillStyle = "rgba(0,0,0,0.10)";
-      ctx.fillRect(0, GROUND + 44 - 2, canvas.width, 3);
-
-      skyScroll = (skyScroll + speed) % 60;
-      ctx.fillStyle = "rgba(0,0,0,0.12)";
-      for (let x=-40; x<canvas.width+40; x+=60){
-        ctx.fillRect(x - skyScroll, GROUND + 44 + 12, 26, 3);
-      }
-    }
-
-    // Pixel sprites inspired by your photos
-    function drawPixelHer(x,y,scale=3){
-      const p = scale;
-      const layers = [
-        {c:"#2b1b17", pts:[[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1],[6,1],[2,2],[6,2],[1,3],[2,3],[6,3],[7,3]]}, // hair
-        {c:"#111111", pts:[[2,3],[3,3],[4,3],[5,3],[6,3]]}, // glasses
-        {c:"#f2c7a5", pts:[[3,2],[4,2],[5,2],[2,4],[3,4],[4,4],[5,4],[6,4]]}, // face
-        {c:"#111111", pts:[[3,4],[5,4]]}, // eyes
-        {c:"#101010", pts:[[2,6],[3,6],[4,6],[5,6],[6,6],[2,7],[3,7],[4,7],[5,7],[6,7]]}, // top
-        {c:"#9aa0a6", pts:[[3,8],[4,8],[5,8],[3,9],[4,9],[5,9]]}, // pants
-        {c:"#111111", pts:[[2,10],[3,10],[4,10],[5,10],[6,10]]} // shoes
-      ];
-      for (const L of layers){
-        ctx.fillStyle = L.c;
-        for (const [sx,sy] of L.pts){
-          ctx.fillRect(x + sx*p, y + sy*p, p, p);
-        }
-      }
-    }
-
-    function drawPixelYou(x,y,scale=3){
-      const p = scale;
-      const layers = [
-        {c:"#1a1a1a", pts:[[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1],[6,1]]}, // hair
-        {c:"#8a5a3c", pts:[[3,2],[4,2],[5,2],[2,3],[3,3],[4,3],[5,3],[6,3],[2,4],[3,4],[4,4],[5,4],[6,4]]}, // face
-        {c:"#111111", pts:[[3,3],[5,3]]}, // eyes
-        {c:"#4b2a2a", pts:[[2,6],[3,6],[4,6],[5,6],[6,6],[2,7],[3,7],[4,7],[5,7],[6,7]]}, // shirt/jacket
-        {c:"#1f1f1f", pts:[[3,6],[5,6],[4,7]]}, // plaid accents
-        {c:"#2a2a2a", pts:[[3,8],[4,8],[5,8],[3,9],[4,9],[5,9]]}, // pants
-        {c:"#111111", pts:[[2,10],[3,10],[4,10],[5,10],[6,10]]} // shoes
-      ];
-      for (const L of layers){
-        ctx.fillStyle = L.c;
-        for (const [sx,sy] of L.pts){
-          ctx.fillRect(x + sx*p, y + sy*p, p, p);
-        }
-      }
-    }
-
-    function drawHeart(h){
-      ctx.font = "22px Arial";
-      ctx.fillText("❤️", h.x - 10, h.y + 8);
-    }
-
-    function drawObstacle(o){
-      ctx.fillStyle = "rgba(0,0,0,0.85)";
-      ctx.fillRect(o.x, o.y, o.w, o.h);
-      ctx.fillStyle = "rgba(255,255,255,0.18)";
-      ctx.fillRect(o.x+2, o.y+2, Math.max(2, o.w-8), 2);
-    }
-
-    function spawn(speed){
-      spawnTimer -= 1;
-      if (spawnTimer > 0) return;
-      spawnTimer = Math.floor(rand(38, 74));
-
-      const roll = Math.random();
-      if (roll < 0.58){
-        // obstacle with smaller hitbox
-        const tall = Math.random() < 0.33;
-        obstacles.push({
-          x: canvas.width + 30,
-          y: tall ? (GROUND + 44 - 34) : (GROUND + 44 - 20),
-          w: tall ? 16 : 18,    // smaller
-          h: tall ? 28 : 16     // smaller
-        });
+    musicBtn22.addEventListener("click", async () => {
+      if (music.paused){
+        try { await music.play(); } catch {}
       } else {
-        hearts.push({
-          x: canvas.width + 30,
-          y: rand(GROUND - 86, GROUND - 34),
-          r: 12
-        });
+        music.pause();
       }
+      syncButton();
+    });
+    syncButton();
+
+    const {wrap, start} = renderSlideshow(IMAGES.y22);
+    const pics = makeCard(`<div style="font-weight:1000; margin-bottom:10px;">2022 slideshow</div>`);
+    pics.appendChild(wrap);
+    chatBody.appendChild(pics);
+    start();
+    return;
+  }
+
+  // Default slideshow
+  if (currentChan === "slideshow"){
+    chatBody.appendChild(makeCard(`
+      <div style="font-weight:1000; font-size:18px;">${serverLabel(currentServer)} memories 📸</div>
+      <div style="margin-top:6px; color:var(--muted); font-weight:800;">
+        This channel is a slideshow for this year.
+      </div>
+    `));
+    const {wrap, start} = renderSlideshow(IMAGES[currentServer]);
+    const pics = makeCard(`<div style="font-weight:1000; margin-bottom:10px;">Slideshow</div>`);
+    pics.appendChild(wrap);
+    chatBody.appendChild(pics);
+    start();
+    return;
+  }
+
+  if (currentChan === "notes"){
+    chatBody.appendChild(makeCard(`
+      <div style="font-weight:1000;">Notes 📝</div>
+      <div style="margin-top:8px; color:var(--muted); font-weight:800; line-height:1.5;">
+        You can turn this into “chat messages” later (like Discord).
+      </div>
+    `));
+    return;
+  }
+
+  if (currentChan === "controls"){
+    chatBody.appendChild(makeCard(`
+      <div style="font-weight:1000;">Controls 🎛️</div>
+      <div style="margin-top:8px; color:var(--muted); font-weight:800; line-height:1.6;">
+        • Music toggle: top of the sidebar (🔊 / 🔇) AND in 22 #valentine (Play/Pause)<br/>
+        • Game controls: Space=Jump, Shift=Forward, P=Pause (plus mobile buttons)
+      </div>
+    `));
+    return;
+  }
+
+  chatBody.appendChild(makeCard(`<div style="color:var(--muted); font-weight:800;">Nothing here yet.</div>`));
+}
+
+/* =========================================================
+   ACTIVE UI STATES
+========================================================= */
+function setActiveServersUI(){
+  document.querySelectorAll(".serverDot").forEach(el => {
+    el.classList.toggle("active", el.dataset.server === currentServer);
+  });
+}
+function setActiveChanUI(){
+  document.querySelectorAll(".chan").forEach(el => {
+    el.classList.toggle("active", el.dataset.chan === currentChan);
+  });
+}
+
+/* =========================================================
+   NAV EVENTS
+========================================================= */
+document.getElementById("servers").addEventListener("click", (e) => {
+  const dot = e.target.closest(".serverDot");
+  if (!dot) return;
+  currentServer = dot.dataset.server;
+
+  if (currentServer === "y22") currentChan = "valentine";
+  else if (currentServer === "game") currentChan = "slideshow";
+  else currentChan = "slideshow";
+
+  setActiveServersUI();
+  setActiveChanUI();
+  render();
+});
+
+document.querySelectorAll(".chan").forEach(el => {
+  el.addEventListener("click", () => {
+    currentChan = el.dataset.chan;
+    setActiveChanUI();
+    render();
+  });
+});
+
+/* =========================================================
+   GAME
+========================================================= */
+let GAME = null;
+
+function initGame(){
+  if (GAME && GAME.initialized) return;
+
+  const canvas = document.getElementById("game");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+
+  const scoreEl = document.getElementById("score");
+  const highEl = document.getElementById("high");
+  const spdEl = document.getElementById("spd");
+
+  const pauseToggle = document.getElementById("pauseToggle");
+  const padJump = document.getElementById("padJump");
+  const padFwd = document.getElementById("padFwd");
+  const padPause = document.getElementById("padPause");
+
+  const overlay = document.getElementById("gameOver");
+  const finalScore = document.getElementById("finalScore");
+  const finalHigh = document.getElementById("finalHigh");
+  const replayBtn = document.getElementById("replayBtn");
+
+  const HS_KEY = "discord_valentine_game_high_v1";
+  let high = Number(localStorage.getItem(HS_KEY) || 0);
+  highEl.textContent = String(high);
+
+  const GROUND = 246;
+  const GRAVITY = 0.85;
+
+  let running = true;
+  let paused = false;
+
+  let score = 0;
+  let baseSpeed = 4.3;
+  let speedRamp = 0.0019;
+  let forwardHeld = false;
+
+  const player = { x:110, y:GROUND, vy:0, onGround:true, w:28, h:44 };
+  let hearts = [];
+  let obstacles = [];
+  let spawnTimer = 0;
+
+  let skyScroll = 0, nearScroll = 0, farScroll = 0;
+
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+  function rectsOverlap(a,b){
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  }
+  function circleRectOverlap(cx,cy,cr,r){
+    const closestX = Math.max(r.x, Math.min(cx, r.x + r.w));
+    const closestY = Math.max(r.y, Math.min(cy, r.y + r.h));
+    const dx = cx - closestX;
+    const dy = cy - closestY;
+    return (dx*dx + dy*dy) <= cr*cr;
+  }
+
+  function drawCityBackground(speed){
+    const g = ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0, "#ffe2ea");
+    g.addColorStop(1, "#ffffff");
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = "rgba(255,80,120,0.22)";
+    for (let i=0;i<30;i++){
+      const x = (i*37 + skyScroll*0.35) % (canvas.width+60) - 30;
+      const y = 20 + (i%6)*18;
+      ctx.fillRect(x, y, 2, 2);
     }
 
-    function gameOver(){
-      running = false;
-      forwardHeld = false;
-      paused = false;
-      pauseBtn.textContent = "⏸ Pause";
-
-      if (score > high){
-        high = score;
-        localStorage.setItem(HS_KEY, String(high));
-        highEl.textContent = String(high);
+    farScroll = (farScroll + speed*0.25) % 200;
+    ctx.fillStyle = "rgba(40,40,60,0.20)";
+    for (let x=-220; x<canvas.width+220; x+=200){
+      const bx = x - farScroll;
+      const h = 70 + ((x/200)%3)*18;
+      ctx.fillRect(bx, 165-h, 140, h);
+      ctx.fillStyle = "rgba(255,90,130,0.15)";
+      for (let wx=0; wx<120; wx+=18){
+        for (let wy=0; wy<h-12; wy+=18){
+          ctx.fillRect(bx+10+wx, 165-h+10+wy, 6, 6);
+        }
       }
-
-      document.getElementById("finalScore").textContent = String(score);
-      document.getElementById("finalHigh").textContent = String(high);
-
-      // draw mini sprites
-      drawMiniSprites();
-
-      document.getElementById("gameOver").style.display = "flex";
+      ctx.fillStyle = "rgba(40,40,60,0.20)";
     }
 
-    function drawMiniSprites(){
-      const her = document.getElementById("miniHer").getContext("2d");
-      const you = document.getElementById("miniYou").getContext("2d");
+    nearScroll = (nearScroll + speed*0.6) % 160;
+    ctx.fillStyle = "rgba(20,20,35,0.35)";
+    for (let x=-200; x<canvas.width+200; x+=160){
+      const bx = x - nearScroll;
+      const h = 110 + ((x/160)%4)*18;
+      ctx.fillRect(bx, 260-h, 120, h);
+      ctx.fillStyle = "rgba(255,255,255,0.14)";
+      for (let wx=0; wx<100; wx+=16){
+        for (let wy=0; wy<h-12; wy+=16){
+          ctx.fillRect(bx+10+wx, 260-h+10+wy, 6, 6);
+        }
+      }
+      ctx.fillStyle = "rgba(20,20,35,0.35)";
+    }
 
-      her.clearRect(0,0,140,140);
-      you.clearRect(0,0,140,140);
+    ctx.fillStyle = "rgba(0,0,0,0.10)";
+    ctx.fillRect(0, GROUND + 44 - 2, canvas.width, 3);
 
-      // Backgrounds
-      her.fillStyle = "rgba(255,255,255,0.95)";
-      her.fillRect(0,0,140,140);
-      you.fillStyle = "rgba(255,255,255,0.95)";
-      you.fillRect(0,0,140,140);
+    skyScroll = (skyScroll + speed) % 60;
+    ctx.fillStyle = "rgba(0,0,0,0.12)";
+    for (let x=-40; x<canvas.width+40; x+=60){
+      ctx.fillRect(x - skyScroll, GROUND + 44 + 12, 26, 3);
+    }
+  }
 
-      // Use the same sprite logic but draw on those contexts
-      // We'll temporarily swap ctx reference by wrapping helpers:
-      function drawTo(targetCtx, fn){
-        const old = ctx;
-        window.__oldCtx = old;
-        // monkey-patch: reassign ctx variable via closure trick not possible here;
-        // so we re-implement minimal draw for minis:
+  function drawPixelHer(x,y,scale=3){
+    const p = scale;
+    const layers = [
+      {c:"#2b1b17", pts:[[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1],[6,1],[2,2],[6,2],[1,3],[2,3],[6,3],[7,3]]},
+      {c:"#111111", pts:[[2,3],[3,3],[4,3],[5,3],[6,3]]},
+      {c:"#f2c7a5", pts:[[3,2],[4,2],[5,2],[2,4],[3,4],[4,4],[5,4],[6,4]]},
+      {c:"#111111", pts:[[3,4],[5,4]]},
+      {c:"#101010", pts:[[2,6],[3,6],[4,6],[5,6],[6,6],[2,7],[3,7],[4,7],[5,7],[6,7]]},
+      {c:"#9aa0a6", pts:[[3,8],[4,8],[5,8],[3,9],[4,9],[5,9]]},
+      {c:"#111111", pts:[[2,10],[3,10],[4,10],[5,10],[6,10]]}
+    ];
+    for (const L of layers){
+      ctx.fillStyle = L.c;
+      for (const [sx,sy] of L.pts){
+        ctx.fillRect(x + sx*p, y + sy*p, p, p);
+      }
+    }
+  }
+
+  function drawPixelYou(x,y,scale=3){
+    const p = scale;
+    const layers = [
+      {c:"#1a1a1a", pts:[[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1],[6,1]]},
+      {c:"#8a5a3c", pts:[[3,2],[4,2],[5,2],[2,3],[3,3],[4,3],[5,3],[6,3],[2,4],[3,4],[4,4],[5,4],[6,4]]},
+      {c:"#111111", pts:[[3,3],[5,3]]},
+      {c:"#4b2a2a", pts:[[2,6],[3,6],[4,6],[5,6],[6,6],[2,7],[3,7],[4,7],[5,7],[6,7]]},
+      {c:"#1f1f1f", pts:[[3,6],[5,6],[4,7]]},
+      {c:"#2a2a2a", pts:[[3,8],[4,8],[5,8],[3,9],[4,9],[5,9]]},
+      {c:"#111111", pts:[[2,10],[3,10],[4,10],[5,10],[6,10]]}
+    ];
+    for (const L of layers){
+      ctx.fillStyle = L.c;
+      for (const [sx,sy] of L.pts){
+        ctx.fillRect(x + sx*p, y + sy*p, p, p);
+      }
+    }
+  }
+
+  function drawHeart(h){
+    ctx.font = "22px Arial";
+    ctx.fillText("❤️", h.x - 10, h.y + 8);
+  }
+
+  function drawObstacle(o){
+    ctx.fillStyle = "rgba(0,0,0,0.85)";
+    ctx.fillRect(o.x, o.y, o.w, o.h);
+    ctx.fillStyle = "rgba(255,255,255,0.18)";
+    ctx.fillRect(o.x+2, o.y+2, Math.max(2, o.w-8), 2);
+  }
+
+  function spawn(){
+    spawnTimer -= 1;
+    if (spawnTimer > 0) return;
+    spawnTimer = Math.floor(rand(38, 74));
+
+    const roll = Math.random();
+    if (roll < 0.58){
+      const tall = Math.random() < 0.33;
+      obstacles.push({
+        x: canvas.width + 30,
+        y: tall ? (GROUND + 44 - 34) : (GROUND + 44 - 20),
+        w: tall ? 16 : 18,
+        h: tall ? 28 : 16
+      });
+    } else {
+      hearts.push({
+        x: canvas.width + 30,
+        y: rand(GROUND - 86, GROUND - 34),
+        r: 12
+      });
+    }
+  }
+
+  function togglePause(){
+    if (!running) return;
+    paused = !paused;
+    pauseToggle.textContent = paused ? "▶️ Resume" : "⏸ Pause";
+    padPause.textContent = paused ? "▶️" : "⏸";
+  }
+
+  function jump(){
+    bootMusicOnce();
+    if (!running || paused) return;
+    if (player.onGround){
+      player.vy = -14.2;
+      player.onGround = false;
+    }
+  }
+
+  function setForward(v){
+    bootMusicOnce();
+    forwardHeld = v;
+  }
+
+  padJump.addEventListener("click", jump);
+  padFwd.addEventListener("pointerdown", () => setForward(true));
+  padFwd.addEventListener("pointerup", () => setForward(false));
+  padFwd.addEventListener("pointercancel", () => setForward(false));
+  padFwd.addEventListener("pointerleave", () => setForward(false));
+  padPause.addEventListener("click", togglePause);
+
+  pauseToggle.addEventListener("click", togglePause);
+
+  const onKeyDown = (e) => {
+    if (currentServer !== "game") return;
+    if (e.code === "Space"){ e.preventDefault(); jump(); }
+    if (e.code === "ShiftLeft" || e.code === "ShiftRight"){ setForward(true); }
+    if (e.code === "KeyP"){ togglePause(); }
+    if (!running && (e.code === "Enter" || e.code === "Space")){ e.preventDefault(); restart(); }
+  };
+  const onKeyUp = (e) => {
+    if (currentServer !== "game") return;
+    if (e.code === "ShiftLeft" || e.code === "ShiftRight"){ setForward(false); }
+  };
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
+
+  function drawMiniSprites(){
+    const her = document.getElementById("miniHer").getContext("2d");
+    const you = document.getElementById("miniYou").getContext("2d");
+    her.clearRect(0,0,140,140);
+    you.clearRect(0,0,140,140);
+    her.fillStyle = "rgba(255,255,255,0.95)"; her.fillRect(0,0,140,140);
+    you.fillStyle = "rgba(255,255,255,0.95)"; you.fillRect(0,0,140,140);
+
+    const p = 6;
+    const drawMini = (target, type) => {
+      const layers = type === "her" ? [
+        {c:"#2b1b17", pts:[[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1],[6,1],[2,2],[6,2],[1,3],[2,3],[6,3],[7,3]]},
+        {c:"#111111", pts:[[2,3],[3,3],[4,3],[5,3],[6,3]]},
+        {c:"#f2c7a5", pts:[[3,2],[4,2],[5,2],[2,4],[3,4],[4,4],[5,4],[6,4]]},
+        {c:"#111111", pts:[[3,4],[5,4]]},
+        {c:"#101010", pts:[[2,6],[3,6],[4,6],[5,6],[6,6],[2,7],[3,7],[4,7],[5,7],[6,7]]},
+        {c:"#9aa0a6", pts:[[3,8],[4,8],[5,8],[3,9],[4,9],[5,9]]},
+        {c:"#111111", pts:[[2,10],[3,10],[4,10],[5,10],[6,10]]}
+      ] : [
+        {c:"#1a1a1a", pts:[[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1],[6,1]]},
+        {c:"#8a5a3c", pts:[[3,2],[4,2],[5,2],[2,3],[3,3],[4,3],[5,3],[6,3],[2,4],[3,4],[4,4],[5,4],[6,4]]},
+        {c:"#111111", pts:[[3,3],[5,3]]},
+        {c:"#4b2a2a", pts:[[2,6],[3,6],[4,6],[5,6],[6,6],[2,7],[3,7],[4,7],[5,7],[6,7]]},
+        {c:"#1f1f1f", pts:[[3,6],[5,6],[4,7]]},
+        {c:"#2a2a2a", pts:[[3,8],[4,8],[5,8],[3,9],[4,9],[5,9]]},
+        {c:"#111111", pts:[[2,10],[3,10],[4,10],[5,10],[6,10]]}
+      ];
+      for (const L of layers){
+        target.fillStyle = L.c;
+        for (const [sx,sy] of L.pts){
+          target.fillRect((sx*p)+40, (sy*p)+26, p, p);
+        }
+      }
+    };
+
+    drawMini(her, "her");
+    drawMini(you, "you");
+  }
+
+  function gameOver(){
+    running = false;
+    paused = false;
+    forwardHeld = false;
+
+    if (score > high){
+      high = score;
+      localStorage.setItem(HS_KEY, String(high));
+      highEl.textContent = String(high);
+    }
+
+    finalScore.textContent = String(score);
+    finalHigh.textContent = String(high);
+    drawMiniSprites();
+    overlay.style.display = "flex";
+  }
+
+  function restart(){
+    overlay.style.display = "none";
+    running = true;
+    paused = false;
+    score = 0;
+    baseSpeed = 4.3;
+    forwardHeld = false;
+    hearts = [];
+    obstacles = [];
+    spawnTimer = 0;
+    player.y = GROUND;
+    player.vy = 0;
+    player.onGround = true;
+    pauseToggle.textContent = "⏸ Pause";
+    padPause.textContent = "⏸";
+  }
+
+  replayBtn.onclick = restart;
+
+  function loop(){
+    const speedMult = forwardHeld ? 1.55 : 1.0;
+    const speed = baseSpeed * speedMult;
+
+    if (running && !paused){
+      baseSpeed += speedRamp;
+      score += 1;
+      scoreEl.textContent = String(score);
+      spdEl.textContent = (speed / 4.3).toFixed(1);
+
+      player.vy += GRAVITY;
+      player.y += player.vy;
+      if (player.y >= GROUND){
+        player.y = GROUND;
+        player.vy = 0;
+        player.onGround = true;
       }
 
-      // Simple mini sprite rendering:
-      function drawHerMini(target){
-        const p = 6;
-        const layers = [
-          {c:"#2b1b17", pts:[[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1],[6,1],[2,2],[6,2],[1,3],[2,3],[6,3],[7,3]]},
-          {c:"#111111", pts:[[2,3],[3,3],[4,3],[5,3],[6,3]]},
-          {c:"#f2c7a5", pts:[[3,2],[4,2],[5,2],[2,4],[3,4],[4,4],[5,4],[6,4]]},
-          {c:"#111111", pts:[[3,4],[5,4]]},
-          {c:"#101010", pts:[[2,6],[3,6],[4,6],[5,6],[6,6],[2,7],[3,7],[4,7],[5,7],[6,7]]},
-          {c:"#9aa0a6", pts:[[3,8],[4,8],[5,8],[3,9],[4,9],[5,9]]},
-          {c:"#111111", pts:[[2,10],[3,10],[4,10],[5,10],[6,10]]}
-        ];
-        for (const L of layers){
-          target.fillStyle = L.c;
-          for (const [sx,sy] of L.pts){
-            target.fillRect( (sx*p)+40, (sy*p)+26, p, p );
-          }
+      spawn();
+
+      for (const h of hearts) h.x -= speed;
+      for (const o of obstacles) o.x -= speed;
+      hearts = hearts.filter(h => h.x > -60);
+      obstacles = obstacles.filter(o => o.x > -80);
+
+      const pr = { x: player.x+4, y: player.y+6, w: player.w-8, h: player.h-10 };
+
+      for (let i = hearts.length-1; i>=0; i--){
+        const h = hearts[i];
+        if (circleRectOverlap(h.x, h.y, 12, pr)){
+          hearts.splice(i,1);
+          score += 85;
         }
       }
 
-      function drawYouMini(target){
-        const p = 6;
-        const layers = [
-          {c:"#1a1a1a", pts:[[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1],[6,1]]},
-          {c:"#8a5a3c", pts:[[3,2],[4,2],[5,2],[2,3],[3,3],[4,3],[5,3],[6,3],[2,4],[3,4],[4,4],[5,4],[6,4]]},
-          {c:"#111111", pts:[[3,3],[5,3]]},
-          {c:"#4b2a2a", pts:[[2,6],[3,6],[4,6],[5,6],[6,6],[2,7],[3,7],[4,7],[5,7],[6,7]]},
-          {c:"#1f1f1f", pts:[[3,6],[5,6],[4,7]]},
-          {c:"#2a2a2a", pts:[[3,8],[4,8],[5,8],[3,9],[4,9],[5,9]]},
-          {c:"#111111", pts:[[2,10],[3,10],[4,10],[5,10],[6,10]]}
-        ];
-        for (const L of layers){
-          target.fillStyle = L.c;
-          for (const [sx,sy] of L.pts){
-            target.fillRect( (sx*p)+40, (sy*p)+26, p, p );
-          }
+      for (const o of obstacles){
+        const of = { x: o.x+2, y: o.y+2, w: Math.max(4, o.w-4), h: Math.max(4, o.h-4) };
+        if (rectsOverlap(pr, of)){
+          gameOver();
+          break;
         }
       }
-
-      drawHerMini(her);
-      drawYouMini(you);
     }
 
-    function restart(){
-      document.getElementById("gameOver").style.display = "none";
-      running = true;
-      paused = false;
-      score = 0;
-      baseSpeed = 4.3;
-      forwardHeld = false;
-      hearts = [];
-      obstacles = [];
-      spawnTimer = 0;
-      player.y = GROUND;
-      player.vy = 0;
-      player.onGround = true;
-      pauseBtn.textContent = "⏸ Pause";
-    }
+    drawCityBackground(running && !paused ? speed : 0);
+    for (const h of hearts) drawHeart(h);
+    for (const o of obstacles) drawObstacle(o);
 
-    function step(){
-      const speedMult = forwardHeld ? 1.55 : 1.0;
-      const speed = baseSpeed * speedMult;
+    drawPixelHer(player.x - 14, player.y - 40, 3);
+    requestAnimationFrame(loop);
+  }
 
-      if (running && !paused){
-        baseSpeed += speedRamp;
-        score += 1;
-        scoreEl.textContent = String(score);
-        spdEl.textContent = (speed / 4.3).toFixed(1);
+  loop();
 
-        // physics
-        player.vy += GRAVITY;
-        player.y += player.vy;
-        if (player.y >= GROUND){
-          player.y = GROUND;
-          player.vy = 0;
-          player.onGround = true;
-        }
+  GAME = { initialized: true };
+}
 
-        // spawn + move
-        spawn(speed);
-
-        for (const h of hearts) h.x -= speed;
-        for (const o of obstacles) o.x -= speed;
-
-        hearts = hearts.filter(h => h.x > -60);
-        obstacles = obstacles.filter(o => o.x > -80);
-
-        // collisions
-        const pr = { x: player.x, y: player.y, w: player.w, h: player.h };
-
-        // hearts
-        for (let i = hearts.length - 1; i >= 0; i--){
-          const h = hearts[i];
-          if (circleRectOverlap(h.x, h.y, 12, pr)){
-            hearts.splice(i, 1);
-            score += 85;
-          }
-        }
-
-        // obstacles: use smaller hit rect for the player too (fairer)
-        const prFair = { x: player.x + 4, y: player.y + 6, w: player.w - 8, h: player.h - 10 };
-        for (const o of obstacles){
-          const oFair = { x: o.x + 2, y: o.y + 2, w: o.w - 4, h: o.h - 4 };
-          if (rectsOverlap(prFair, oFair)){
-            gameOver();
-            break;
-          }
-        }
-      }
-
-      // draw
-      drawCityBackground(running ? (paused ? 0 : (baseSpeed * (forwardHeld ? 1.55 : 1.0))) : 0);
-
-      for (const h of hearts) drawHeart(h);
-      for (const o of obstacles) drawObstacle(o);
-
-      // draw player (her) sprite on the track
-      // place sprite near player.x and player.y so it looks grounded
-      drawPixelHer(player.x - 14, player.y - 40, 3);
-
-      requestAnimationFrame(step);
-    }
-
-    step();
-  </script>
+/* =========================================================
+   BOOT
+========================================================= */
+setActiveServersUI();
+setActiveChanUI();
+render();
+</script>
 </body>
 </html>
+
+
