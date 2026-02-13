@@ -882,7 +882,136 @@ function initGame(){
 setActiveServersUI();
 setActiveChanUI();
 render();
+<script>
+
+const SITE_VERSION = "DISCORD REVAMP — IMAGE FIX BUILD";
+
+/* ===== RAW BASE (forces images to load from repo directly) ===== */
+const RAW_BASE = "https://raw.githubusercontent.com/manassehbonaparte-spec/https-manasseh.github.io-our-love-story/main/";
+
+/* ===== IMAGE BASE NAMES ONLY (NO EXTENSIONS) ===== */
+const IMAGES = {
+  y22: ["22_01","22_02","22_03","22_04","22_05","22_06"],
+  y23: ["23_01","23_02","23_03","23_04","23_05","23_06"],
+  y24: ["24_01","24_02","24_03","24_04","24_05","24_06","24_07","24_08"],
+  y25: ["25_01","25_02","25_03","25_04","25_05","25_06","25_07","25_08","25_09"],
+  y26: [
+    "456C3DFA-6694-47CD-9340-C41EDA179452",
+    "9779781B-6837-46AD-8A78-09F7AD151B48",
+    "EE0C9E1C-9B92-4CEC-91BF-210B3D5DB6D5"
+  ]
+};
+
+/* ===== EXTENSIONS TO TRY ===== */
+const EXT_TRIES = [".JPEG",".JPG",".PNG",".jpeg",".jpg",".png",".Jpeg",".JPeg",".Png",".jPEG",".jPg",".pNg"];
+
+/* ===== SERVER NAV ===== */
+let currentServer = "y22";
+let currentChan = "slideshow";
+
+const chatBody = document.getElementById("chatBody");
+const serverTitle = document.getElementById("serverTitle");
+const channelTitle = document.getElementById("channelTitle");
+
+function serverLabel(id){
+  if(id === "game") return "Game";
+  return "20" + id.slice(1);
+}
+
+function setHeader(){
+  serverTitle.textContent = serverLabel(currentServer);
+  channelTitle.textContent = "#slideshow";
+}
+
+document.querySelectorAll(".serverDot").forEach(dot=>{
+  dot.addEventListener("click",()=>{
+    currentServer = dot.dataset.server;
+    render();
+  });
+});
+
+/* ===== SLIDESHOW ===== */
+function resolveImage(base){
+  return new Promise((resolve)=>{
+    let i=0;
+    function tryNext(){
+      if(i>=EXT_TRIES.length) return resolve(null);
+      const url = RAW_BASE + base + EXT_TRIES[i];
+      const img = new Image();
+      img.onload = ()=> resolve(url);
+      img.onerror = ()=>{ i++; tryNext(); };
+      img.src = url;
+    }
+    tryNext();
+  });
+}
+
+async function renderSlideshow(baseNames){
+  const wrap = document.createElement("div");
+  wrap.className="slideWrap";
+
+  const valid = [];
+  for(const base of baseNames){
+    const url = await resolveImage(base);
+    if(url) valid.push(url);
+  }
+
+  if(valid.length===0){
+    wrap.innerHTML="<div class='placeholder'>Images not found.<br>Check filenames in repo.</div>";
+    return wrap;
+  }
+
+  const imgs = valid.map((url,i)=>{
+    const im = document.createElement("img");
+    im.src=url;
+    if(i===0) im.classList.add("active");
+    wrap.appendChild(im);
+    return im;
+  });
+
+  let index=0;
+  function next(){
+    imgs[index].classList.remove("active");
+    index=(index+1)%imgs.length;
+    imgs[index].classList.add("active");
+  }
+
+  let timer=setInterval(next,3000);
+  wrap.addEventListener("click",()=>{
+    next();
+    clearInterval(timer);
+    timer=setInterval(next,3000);
+  });
+
+  return wrap;
+}
+
+/* ===== RENDER ===== */
+async function render(){
+  chatBody.innerHTML="";
+  setHeader();
+
+  const versionCard=document.createElement("div");
+  versionCard.className="card";
+  versionCard.innerHTML="<strong>"+SITE_VERSION+"</strong>";
+  chatBody.appendChild(versionCard);
+
+  if(currentServer==="game"){
+    chatBody.appendChild(document.createTextNode("Game section still intact."));
+    return;
+  }
+
+  const slideCard=document.createElement("div");
+  slideCard.className="card";
+  slideCard.innerHTML="<strong>"+serverLabel(currentServer)+" Slideshow</strong><br><br>";
+  slideCard.appendChild(await renderSlideshow(IMAGES[currentServer]));
+  chatBody.appendChild(slideCard);
+}
+
+render();
+
 </script>
+
 </body>
 </html>
 
